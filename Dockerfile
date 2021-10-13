@@ -16,5 +16,5 @@ COPY src /app/src/
 COPY tsconfig.json /app/
 
 # Start app
-EXPOSE 3003
+EXPOSE 2999
 CMD ["npm", "run", "start-docker"]

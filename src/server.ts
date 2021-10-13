@@ -11,10 +11,10 @@ const xpServicePath = '/_/service/no.nav.navno/dataQuery';
 
 const serviceSecret = process.env.XP_SERVICE_SECRET || 'dummyToken';
 
-app.use('/', createProxyMiddleware({
+app.use('/data', createProxyMiddleware({
     target: xpOrigin,
     pathRewrite: {
-        '^': xpServicePath
+        '^/data': xpServicePath
     },
     headers: {
         secret: serviceSecret
