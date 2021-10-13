@@ -21,7 +21,8 @@ app.use('/data', createProxyMiddleware({
     },
     headers: {
         secret: serviceSecret
-    }
+    },
+    logLevel: 'debug'
 }));
 
 app.get('/internal/isAlive', (req, res) => {
