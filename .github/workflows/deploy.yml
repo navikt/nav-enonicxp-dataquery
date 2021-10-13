@@ -1,4 +1,4 @@
-name: Deploy-to-prod
+name: deploy-to-nais
 on:
   workflow_dispatch
 
