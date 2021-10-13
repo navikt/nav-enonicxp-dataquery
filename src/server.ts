@@ -13,6 +13,7 @@ const serviceSecret = process.env.XP_SERVICE_SECRET || 'dummyToken';
 
 app.use('/data', createProxyMiddleware({
     target: xpOrigin,
+    changeOrigin: true,
     pathRewrite: {
         '^/data': xpServicePath
     },
