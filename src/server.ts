@@ -11,6 +11,8 @@ const xpServicePath = '/_/service/no.nav.navno/dataQuery';
 
 const serviceSecret = process.env.XP_SERVICE_SECRET || 'dummyToken';
 
+console.log(xpOrigin, serviceSecret.substr(0, 4))
+
 app.use('/data', createProxyMiddleware({
     target: xpOrigin,
     changeOrigin: true,
