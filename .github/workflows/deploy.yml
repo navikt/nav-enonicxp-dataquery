@@ -24,7 +24,7 @@ jobs:
         run: |
           cat > .env <<EOF
           XP_SERVICE_SECRET=$XP_SERVICE_SECRET
-          XP_ORIGIN=https://www.nav.no
+          XP_ORIGIN=https://www.dev.nav.no
           EOF
       - uses: actions/cache@v2
         with:
