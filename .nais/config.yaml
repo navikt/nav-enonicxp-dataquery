@@ -20,7 +20,6 @@ spec:
     initialDelay: 10
   ingresses:
     - https://nav-enonicxp-dataquery.intern.nav.no
-  webproxy: true
   replicas:
     min: 1
     max: 1
