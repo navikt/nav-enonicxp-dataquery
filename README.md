@@ -3,7 +3,7 @@ Intern service for å kjøre queries mot innhold i Enonic XP. For å hindre over
 dev url: [https://nav-enonicxp-dataquery.intern.dev.nav.no/data](https://nav-enonicxp-dataquery.intern.dev.nav.no/data)
 prod url: [https://nav-enonicxp-dataquery.intern.nav.no/data](https://nav-enonicxp-dataquery.intern.nav.no/data)
 
-### Parametre
+## Parametre
 
 branch er påkrevd, resten er optional
 
@@ -33,7 +33,7 @@ branch er påkrevd, resten er optional
 'media:presentation'
 ```
 
-### Response
+## Response
 ```
 {
     branch,
