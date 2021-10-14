@@ -17,4 +17,4 @@ COPY tsconfig.json /app/
 
 # Start app
 EXPOSE 2999
-CMD ["npm", "run", "start-docker"]
+CMD ["npm", "run", "start"]

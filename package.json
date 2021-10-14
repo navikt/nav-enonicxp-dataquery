@@ -6,8 +6,7 @@
   "module": "es",
   "scripts": {
     "build": "rm -fr distSrc && tsc",
-    "start": "npm run build && node distSrc/server.js",
-    "start-docker": "npm run build && node distSrc/server.js"
+    "start": "npm run build && node distSrc/server.js"
   },
   "dependencies": {
     "express": "^4.17.1",
