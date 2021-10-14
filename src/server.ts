@@ -1,5 +1,4 @@
 import express from 'express';
-import { createProxyMiddleware } from 'http-proxy-middleware';
 import fetch from 'node-fetch';
 
 const app = express();
@@ -12,37 +11,23 @@ const xpServicePath = '/_/service/no.nav.navno/dataQuery';
 
 const serviceSecret = process.env.XP_SERVICE_SECRET || 'dummyToken';
 
+const xpUrl = `${xpOrigin}${xpServicePath}`;
+
 console.log(xpOrigin, serviceSecret.substr(0, 4));
 
-app.use('/data', createProxyMiddleware({
-    target: xpOrigin,
-    changeOrigin: true,
-    pathRewrite: {
-        '^/data': xpServicePath,
-    },
-    headers: {
-        secret: serviceSecret,
-    },
-    logLevel: 'debug',
-}));
+app.get('/data', async (req, res) => {
+    try {
+        const reqUrl = new URL(req.url, xpOrigin);
+        const url = `${xpUrl}${reqUrl.search}`;
+        console.log(`Trying url ${url}`);
 
-app.get('/test', async (req, res) => {
-    const url = `${xpOrigin}${xpServicePath}`;
-    console.log(`Trying url ${url}`);
-    const response = await fetch(url, { headers: { secret: serviceSecret } });
-
-    const isJson = response.headers
-        ?.get('content-type')
-        ?.includes?.('application/json');
-
-    console.log(isJson);
-
-    if (isJson) {
+        const response = await fetch(url, { headers: { secret: serviceSecret } });
         const json = await response.json();
-        return res.status(response.status).send(json);
-    }
 
-    return res.status(500).send("Invalid response from XP");
+        return res.status(response.status).send(json);
+    } catch (e) {
+        return res.status(500).send(`Server error - ${e}`);
+    }
 });
 
 app.get('/internal/isAlive', (req, res) => {
