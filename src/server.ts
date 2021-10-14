@@ -31,6 +31,15 @@ app.get('/query', async (req, res) => {
         console.log(`Trying url ${url}`);
 
         const response = await fetch(url, { headers: { secret: serviceSecret } });
+
+        const isJson = response.headers
+            ?.get('content-type')
+            ?.includes?.('application/json');
+
+        if (!isJson) {
+            return res.send(response);
+        }
+
         const json = await response.json();
 
         const dateTime = new Date().toISOString();
