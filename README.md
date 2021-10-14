@@ -16,7 +16,8 @@ branch er påkrevd, resten er optional
 | start              | start-index for returnerte treff
 
 [1] Default content-typer som hentes ut:
-```'no.nav.navno:situation-page'
+```
+'no.nav.navno:situation-page'
 'no.nav.navno:dynamic-page'
 'no.nav.navno:content-page-with-sidemenus'
 'no.nav.navno:main-article'
@@ -29,17 +30,19 @@ branch er påkrevd, resten er optional
 'media:text'
 'media:document'
 'media:spreadsheet'
-'media:presentation'```
+'media:presentation'
+```
 
 ### Response
-
-```{
-    branch,     //
-    query,      //
-    types,      // Tilsvarer spesifiserte parametre
-    fields,     //
-    start,      //
+```
+{
+    branch,
+    query,
+    types,
+    fields,
+    start,
     count,      // Antall returnerte treff
     total,      // Totalt antall treff
-    hits        // Array med data-felter for treffene
-}```
+    hits        // Array med data for treffene
+}
+```
