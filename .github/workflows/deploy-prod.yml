@@ -1,11 +1,11 @@
-name: deploy-to-prod-gcp
+name: deploy-to-prod
 on:
   workflow_dispatch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: prod-gcp:personbruker
+    environment: prod-sbs:personbruker
     steps:
       - uses: actions/checkout@v1
       - name: Define build environment
