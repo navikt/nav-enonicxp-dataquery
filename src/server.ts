@@ -17,7 +17,7 @@ console.log(xpOrigin, serviceSecret.substr(0, 4));
 
 let waiting = false;
 
-app.get('/data', async (req, res) => {
+app.get('/query', async (req, res) => {
     if (waiting) {
         return res.status(503).send('Service is currently busy - try again in a moment');
     }
