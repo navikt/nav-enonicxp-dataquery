@@ -37,6 +37,8 @@ branch er påkrevd, resten er optional
 ```
 
 ## Response
+
+Returnerer en JSON-fil med disse feltene:
 ```
 {
     branch,
