@@ -1,4 +1,4 @@
-name: deploy-to-nais
+name: deploy-to-prod-gcp
 on:
   workflow_dispatch
 
@@ -40,11 +40,11 @@ jobs:
             - name: XP_SERVICE_SECRET
               value: ${{ secrets.XP_SERVICE_SECRET }}
             - name: XP_ORIGIN
-              value: https://www.dev.nav.no
+              value: https://www.nav.no
           EOF
       - uses: nais/deploy/actions/deploy@master
         env:
           CLUSTER: prod-gcp
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          RESOURCE: .nais/config.yaml
+          RESOURCE: .nais/config-prod.yaml
           VARS: .nais/vars.yaml
