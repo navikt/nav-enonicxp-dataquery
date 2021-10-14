@@ -15,7 +15,15 @@ const xpUrl = `${xpOrigin}${xpServicePath}`;
 
 console.log(xpOrigin, serviceSecret.substr(0, 4));
 
+let waiting = false;
+
 app.get('/data', async (req, res) => {
+    if (waiting) {
+        return res.status(503).send('Service is currently busy - try again in a moment');
+    }
+
+    waiting = true;
+
     try {
         const reqUrl = new URL(req.url, xpOrigin);
         const url = `${xpUrl}${reqUrl.search}`;
@@ -24,9 +32,13 @@ app.get('/data', async (req, res) => {
         const response = await fetch(url, { headers: { secret: serviceSecret } });
         const json = await response.json();
 
+        res.setHeader('Content-Disposition', 'attachment; filename="xp-query-response.json"')
+
         return res.status(response.status).send(json);
     } catch (e) {
         return res.status(500).send(`Server error - ${e}`);
+    } finally {
+        waiting = false;
     }
 });
 
