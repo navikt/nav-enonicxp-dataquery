@@ -41,6 +41,11 @@ Returnerer ALT publisert innhold:
 https://nav-enonicxp-dataquery.intern.nav.no/query?branch=published
 ```
 
+Returnerer publisert innhold med innholdstype main-article:
+```
+https://nav-enonicxp-dataquery.intern.nav.no/query?branch=published&type=["no.nav.navno:main-article"]
+```
+
 ## Response
 
 ```
