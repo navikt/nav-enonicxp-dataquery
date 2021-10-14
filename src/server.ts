@@ -32,7 +32,7 @@ type XpServiceResponse = Params & {
 type ThisServiceResponse = Pick<XpServiceResponse, 'branch' | 'query' | 'types' | 'fields' | 'hits'>;
 
 // The XP service has a max count to prevent timeouts, therefore we have to do large fetches in batches
-const fetchAll = async (url: string, prevHits: XpServiceResponse['hits'] = []): Promise<ThisServiceResponse> => {
+const fetchAll = async (url: string, prevHits: XpServiceResponse['hits'] = [], prevCount = 0): Promise<ThisServiceResponse> => {
     const batchResponse = (await fetch(url, { headers: { secret: serviceSecret } }));
 
     const isJson = batchResponse.headers
@@ -53,8 +53,8 @@ const fetchAll = async (url: string, prevHits: XpServiceResponse['hits'] = []): 
     const currentHits = [...prevHits, ...hits];
     const currentCount = currentHits.length;
 
-    if (total > currentCount) {
-        return fetchAll(`${url}&start=${currentCount}`, currentHits);
+    if (total > currentCount && currentCount > prevCount ) {
+        return fetchAll(`${url}&start=${currentCount}`, currentHits, currentCount);
     }
 
     const { branch, query, fields, types } = json;
