@@ -25,14 +25,17 @@ app.get('/data', async (req, res) => {
     waiting = true;
 
     try {
-        const reqUrl = new URL(req.url, xpOrigin);
-        const url = `${xpUrl}${reqUrl.search}`;
+        const { branch } = req.query;
+        const queryString = new URL(req.url, xpOrigin).search;
+        const url = `${xpUrl}${queryString}`;
         console.log(`Trying url ${url}`);
 
         const response = await fetch(url, { headers: { secret: serviceSecret } });
         const json = await response.json();
 
-        res.setHeader('Content-Disposition', 'attachment; filename="xp-query-response.json"')
+        const dateTime = new Date().toISOString();
+        const fileName = `xp-data-query_${branch}_${dateTime}.json`;
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
 
         return res.status(response.status).send(json);
     } catch (e) {
