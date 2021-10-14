@@ -1,10 +1,10 @@
 Intern service for å kjøre queries mot innhold i Enonic XP. For å hindre overbelastning har denne ingen concurrency (gir 503-feil dersom servicen er i bruk).
 
 #### Dev url
-[https://nav-enonicxp-dataquery.intern.dev.nav.no/query](https://nav-enonicxp-dataquery.intern.dev.nav.no/data)
+[https://nav-enonicxp-dataquery.intern.dev.nav.no/query](https://nav-enonicxp-dataquery.intern.dev.nav.no/query)
 
 #### Prod url
-[https://nav-enonicxp-dataquery.intern.nav.no/query](https://nav-enonicxp-dataquery.intern.nav.no/data)
+[https://nav-enonicxp-dataquery.intern.nav.no/query](https://nav-enonicxp-dataquery.intern.nav.no/query)
 
 ## Parametre
 

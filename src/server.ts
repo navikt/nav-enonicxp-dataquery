@@ -1,5 +1,12 @@
 import express from 'express';
-import fetch from 'node-fetch';
+import { v4 as uuid } from 'uuid';
+import { batchedFetchAndSave } from './fetch.js';
+import {
+    cleanupAfterRequest,
+    zipQueryResultAndGetFileName,
+} from './writeFiles.js';
+import { Params } from './types.js';
+import fs from 'fs';
 
 const app = express();
 const appPort = 2999;
@@ -9,85 +16,41 @@ const localXpOrigin = 'http://localhost:8080';
 const xpOrigin = process.env.XP_ORIGIN || localXpOrigin;
 const xpServicePath = '/_/service/no.nav.navno/dataQuery';
 
-const serviceSecret = process.env.XP_SERVICE_SECRET || 'dummyToken';
-
 const xpUrl = `${xpOrigin}${xpServicePath}`;
 
 let waiting = false;
 
-type Branch = 'published' | 'unpublished' | 'all';
-
-type Params = {
-    branch: Branch;
-    query?: string,
-    types?: string[],
-    fields?: string[]
-}
-
-type XpServiceResponse = Params & {
-    total: number;
-    hits: object[];
-}
-
-type ThisServiceResponse =
-    Pick<XpServiceResponse, 'branch' | 'query' | 'types' | 'fields' | 'hits'>
-    & { numHits: number };
-
-// The XP service has a max hit-count to prevent timeouts. We have to do queries in batches
-// if the total number of hits exceeds the max count
-const fetchAll = async (url: string, prevHits: XpServiceResponse['hits'] = [], prevCount = 0): Promise<ThisServiceResponse> => {
-    const batchResponse = (await fetch(url, { headers: { secret: serviceSecret } }));
-
-    const isJson = batchResponse.headers
-        ?.get('content-type')
-        ?.includes?.('application/json');
-
-    if (!isJson) {
-        throw new Error('Invalid response from XP - expected a JSON response');
-    }
-
-    const json = await batchResponse.json() as XpServiceResponse;
-
-    const { total, hits } = json;
-    if (!hits) {
-        throw new Error('Invalid response from XP - no hits array received');
-    }
-
-    const currentHits = [...prevHits, ...hits];
-    const currentCount = currentHits.length;
-
-    if (total > currentCount && currentCount > prevCount) {
-        console.log(`Accumulated ${currentCount} hits of ${total} total hits - fetching another batch`);
-        return fetchAll(`${url}&start=${currentCount}`, currentHits, currentCount);
-    }
-
-    const { branch, query, fields, types } = json;
-    return { branch, query, types, fields, numHits: currentHits.length, hits: currentHits };
-};
-
 app.get('/query', async (req, res) => {
     if (waiting) {
-        return res.status(503).send('Service is currently busy - try again in a moment');
+        return res
+            .status(503)
+            .send('Service is currently busy - try again in a moment');
     }
 
     waiting = true;
+    const requestId = uuid();
 
     try {
-        const { branch } = req.query as Params;
         const queryString = new URL(req.url, xpOrigin).search;
         const url = `${xpUrl}${queryString}`;
-        console.log(`Trying url ${url}`);
 
-        const response = await fetchAll(url);
+        await batchedFetchAndSave(url, requestId);
 
-        const dateTime = new Date().toISOString();
-        const fileName = `xp-data-query_${branch}_${dateTime}.json`;
-        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+        const { branch } = req.query as Params;
+        const zipFileName = await zipQueryResultAndGetFileName(
+            requestId,
+            branch
+        );
+        const zippedData = fs.readFileSync(zipFileName);
 
-        return res.status(200).send(response);
+        res.set('Content-Type', 'application/zip');
+        res.attachment(zipFileName);
+
+        return res.status(200).send(zippedData);
     } catch (e) {
         return res.status(500).send(`Server error - ${e}`);
     } finally {
+        cleanupAfterRequest(requestId);
         waiting = false;
     }
 });
