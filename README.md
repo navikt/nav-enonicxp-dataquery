@@ -43,13 +43,13 @@ https://nav-enonicxp-dataquery.intern.nav.no/query?branch=published
 
 ## Response
 
-Returnerer en JSON-fil med parametrene og treff fra XP:
 ```
 {
     branch,
     query,
     types,
     fields,
+    numHits,
     hits        // Array med treff
 }
 ```
