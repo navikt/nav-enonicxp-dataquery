@@ -29,7 +29,9 @@ type XpServiceResponse = Params & {
     hits: object[];
 }
 
-type ThisServiceResponse = Pick<XpServiceResponse, 'branch' | 'query' | 'types' | 'fields' | 'hits'>;
+type ThisServiceResponse =
+    Pick<XpServiceResponse, 'branch' | 'query' | 'types' | 'fields' | 'hits'>
+    & { numHits: number };
 
 // The XP service has a max hit-count to prevent timeouts. We have to do queries in batches
 // if the total number of hits exceeds the max count
@@ -54,12 +56,13 @@ const fetchAll = async (url: string, prevHits: XpServiceResponse['hits'] = [], p
     const currentHits = [...prevHits, ...hits];
     const currentCount = currentHits.length;
 
-    if (total > currentCount && currentCount > prevCount ) {
+    if (total > currentCount && currentCount > prevCount) {
+        console.log(`Accumulated ${currentCount} hits of ${total} total hits - fetching another batch`);
         return fetchAll(`${url}&start=${currentCount}`, currentHits, currentCount);
     }
 
     const { branch, query, fields, types } = json;
-    return { branch, query, types, fields, hits: currentHits };
+    return { branch, query, types, fields, numHits: currentHits.length, hits: currentHits };
 };
 
 app.get('/query', async (req, res) => {
