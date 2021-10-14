@@ -1,5 +1,6 @@
 import express from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
+import fetch from 'node-fetch';
 
 const app = express();
 const appPort = 2999;
@@ -25,16 +26,18 @@ app.use('/data', createProxyMiddleware({
     logLevel: 'debug'
 }));
 
-// app.get('/data', async (req, res) => {
-//     const response = await fetch(`${xpOrigin}${xpServicePath}`, { headers: { secret: serviceSecret } });
-//
-//     if (response.ok) {
-//         const json = await response.json();
-//         return res.status(200).send(json);
-//     }
-//
-//     return res.status(response.status).send(response.statusText);
-// });
+app.get('/test', async (req, res) => {
+    const url = `${xpOrigin}${xpServicePath}`;
+    console.log(`Trying url ${url}`)
+    const response = await fetch(url, { headers: { secret: serviceSecret } });
+
+    if (response.ok) {
+        const json = await response.json();
+        return res.status(200).send(json);
+    }
+
+    return res.status(response.status).send(response.statusText);
+});
 
 app.get('/internal/isAlive', (req, res) => {
     return res.status(200).send('I am alive!');

@@ -20,10 +20,6 @@ spec:
     initialDelay: 10
   ingresses:
     - https://nav-enonicxp-dataquery.dev.nav.no
-  accessPolicy:
-    outbound:
-      external:
-        - host: www.dev.nav.no
   env:
   {{#each env}}
     - name: {{this.name}}
