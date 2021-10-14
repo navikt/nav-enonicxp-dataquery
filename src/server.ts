@@ -13,9 +13,53 @@ const serviceSecret = process.env.XP_SERVICE_SECRET || 'dummyToken';
 
 const xpUrl = `${xpOrigin}${xpServicePath}`;
 
-console.log(xpOrigin, serviceSecret.substr(0, 4));
-
 let waiting = false;
+
+type Branch = 'published' | 'unpublished' | 'all';
+
+type Params = {
+    branch: Branch;
+    query?: string,
+    types?: string[],
+    fields?: string[]
+}
+
+type XpServiceResponse = Params & {
+    total: number;
+    hits: object[];
+}
+
+type ThisServiceResponse = Pick<XpServiceResponse, 'branch' | 'query' | 'types' | 'fields' | 'hits'>;
+
+// The XP service has a max count to prevent timeouts, therefore we have to do large fetches in batches
+const fetchAll = async (url: string, prevHits: XpServiceResponse['hits'] = []): Promise<ThisServiceResponse> => {
+    const batchResponse = (await fetch(url, { headers: { secret: serviceSecret } }));
+
+    const isJson = batchResponse.headers
+        ?.get('content-type')
+        ?.includes?.('application/json');
+
+    if (!isJson) {
+        throw new Error('Invalid response from XP - expected a JSON response');
+    }
+
+    const json = await batchResponse.json() as XpServiceResponse;
+
+    const { total, hits } = json;
+    if (!hits) {
+        throw new Error('Invalid response from XP - no hits array received');
+    }
+
+    const currentHits = [...prevHits, ...hits];
+    const currentCount = currentHits.length;
+
+    if (total > currentCount) {
+        return fetchAll(`${url}&start=${currentCount}`, currentHits);
+    }
+
+    const { branch, query, fields, types } = json;
+    return { branch, query, types, fields, hits: currentHits };
+};
 
 app.get('/query', async (req, res) => {
     if (waiting) {
@@ -25,28 +69,18 @@ app.get('/query', async (req, res) => {
     waiting = true;
 
     try {
-        const { branch } = req.query;
+        const { branch } = req.query as Params;
         const queryString = new URL(req.url, xpOrigin).search;
         const url = `${xpUrl}${queryString}`;
         console.log(`Trying url ${url}`);
 
-        const response = await fetch(url, { headers: { secret: serviceSecret } });
-
-        const isJson = response.headers
-            ?.get('content-type')
-            ?.includes?.('application/json');
-
-        if (!isJson) {
-            return res.send(response);
-        }
-
-        const json = await response.json();
+        const response = await fetchAll(url);
 
         const dateTime = new Date().toISOString();
         const fileName = `xp-data-query_${branch}_${dateTime}.json`;
         res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
 
-        return res.status(response.status).send(json);
+        return res.status(200).send(response);
     } catch (e) {
         return res.status(500).send(`Server error - ${e}`);
     } finally {

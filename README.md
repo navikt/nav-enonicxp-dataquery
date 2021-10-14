@@ -43,7 +43,7 @@ https://nav-enonicxp-dataquery.intern.nav.no/query?branch=published
 
 ## Response
 
-Returnerer en JSON-fil med disse feltene:
+Returnerer en JSON-fil med parametrene og treff fra XP:
 ```
 {
     branch,
