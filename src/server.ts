@@ -18,25 +18,31 @@ app.use('/data', createProxyMiddleware({
     target: xpOrigin,
     changeOrigin: true,
     pathRewrite: {
-        '^/data': xpServicePath
+        '^/data': xpServicePath,
     },
     headers: {
-        secret: serviceSecret
+        secret: serviceSecret,
     },
-    logLevel: 'debug'
+    logLevel: 'debug',
 }));
 
 app.get('/test', async (req, res) => {
     const url = `${xpOrigin}${xpServicePath}`;
-    console.log(`Trying url ${url}`)
+    console.log(`Trying url ${url}`);
     const response = await fetch(url, { headers: { secret: serviceSecret } });
 
-    if (response.ok) {
+    const isJson = response.headers
+        ?.get('content-type')
+        ?.includes?.('application/json');
+
+    console.log(isJson);
+
+    if (isJson) {
         const json = await response.json();
-        return res.status(200).send(json);
+        return res.status(response.status).send(json);
     }
 
-    return res.status(response.status).send(response.statusText);
+    return res.status(500).send("Invalid response from XP");
 });
 
 app.get('/internal/isAlive', (req, res) => {
