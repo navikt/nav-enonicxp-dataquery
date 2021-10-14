@@ -31,7 +31,8 @@ type XpServiceResponse = Params & {
 
 type ThisServiceResponse = Pick<XpServiceResponse, 'branch' | 'query' | 'types' | 'fields' | 'hits'>;
 
-// The XP service has a max count to prevent timeouts, therefore we have to do large fetches in batches
+// The XP service has a max hit-count to prevent timeouts. We have to do queries in batches
+// if the total number of hits exceeds the max count
 const fetchAll = async (url: string, prevHits: XpServiceResponse['hits'] = [], prevCount = 0): Promise<ThisServiceResponse> => {
     const batchResponse = (await fetch(url, { headers: { secret: serviceSecret } }));
 
