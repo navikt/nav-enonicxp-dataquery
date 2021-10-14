@@ -23,8 +23,8 @@ spec:
   accessPolicy:
     outbound:
       external:
-        - host: www.dev.nav.no
-        - host: www.nav.no
+        - host: dev.nav.no
+        - host: nav.no
   env:
   {{#each env}}
     - name: {{this.name}}
