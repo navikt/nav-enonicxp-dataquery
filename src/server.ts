@@ -1,6 +1,5 @@
 import express from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
-import fetch from 'node-fetch';
 
 const app = express();
 const appPort = 2999;
@@ -14,28 +13,28 @@ const serviceSecret = process.env.XP_SERVICE_SECRET || 'dummyToken';
 
 console.log(xpOrigin, serviceSecret.substr(0, 4));
 
-// app.use('/data', createProxyMiddleware({
-//     target: xpOrigin,
-//     changeOrigin: true,
-//     pathRewrite: {
-//         '^/data': xpServicePath
-//     },
-//     headers: {
-//         secret: serviceSecret
-//     },
-//     logLevel: 'debug'
-// }));
+app.use('/data', createProxyMiddleware({
+    target: xpOrigin,
+    changeOrigin: true,
+    pathRewrite: {
+        '^/data': xpServicePath
+    },
+    headers: {
+        secret: serviceSecret
+    },
+    logLevel: 'debug'
+}));
 
-app.get('/data', async (req, res) => {
-    const response = await fetch(`${xpOrigin}${xpServicePath}`, { headers: { secret: serviceSecret } });
-
-    if (response.ok) {
-        const json = await response.json();
-        return res.status(200).send(json);
-    }
-
-    return res.status(response.status).send(response.statusText);
-});
+// app.get('/data', async (req, res) => {
+//     const response = await fetch(`${xpOrigin}${xpServicePath}`, { headers: { secret: serviceSecret } });
+//
+//     if (response.ok) {
+//         const json = await response.json();
+//         return res.status(200).send(json);
+//     }
+//
+//     return res.status(response.status).send(response.statusText);
+// });
 
 app.get('/internal/isAlive', (req, res) => {
     return res.status(200).send('I am alive!');
