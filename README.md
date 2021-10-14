@@ -16,7 +16,6 @@ branch er påkrevd, resten er optional
 | query              | NoQL query string ([se dokumentasjon](https://developer.enonic.com/docs/xp/stable/storage/noql#query))
 | types              | array av content-typer queryet skal kjøres mot (overstyrer default-verdier [1])
 | fields             | array av felter som skal returneres for hvert treff (hvis tom returneres alle felter)
-| start              | start-index for returnerte treff
 
 [1] Default content-typer som hentes ut:
 ```
@@ -36,6 +35,12 @@ branch er påkrevd, resten er optional
 'media:presentation'
 ```
 
+### Eksempler
+Returnerer ALT publisert innhold:
+```
+https://nav-enonicxp-dataquery.intern.nav.no/query?branch=published
+```
+
 ## Response
 
 Returnerer en JSON-fil med disse feltene:
@@ -45,9 +50,6 @@ Returnerer en JSON-fil med disse feltene:
     query,
     types,
     fields,
-    start,
-    count,      // Antall returnerte treff
-    total,      // Totalt antall treff
-    hits        // Array med data for treffene
+    hits        // Array med treff
 }
 ```
