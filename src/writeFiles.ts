@@ -3,12 +3,14 @@ import path from 'path';
 import archiver from 'archiver';
 import { Branch, QuerySummary, XpContent } from './types.js';
 
-const tmpFolder = process.env.TMP_FOLDER || 'tmp';
+const localTmp = path.join(path.resolve(), 'tmp');
+const tmpFolder = process.env.TMP_FOLDER || localTmp;
 
 const getRequestBasePath = (requestId: string) =>
     path.join(tmpFolder, requestId);
 
 const getRequestJsonPath = (requestId: string) =>
+
     path.join(getRequestBasePath(requestId), 'json');
 
 const objectToJson = (obj: object) => JSON.stringify(obj, null, 4);
@@ -39,9 +41,8 @@ export const zipQueryResultAndGetFileName = async (
     branch: Branch
 ): Promise<string> => {
     const dateTime = new Date().toISOString().replaceAll(':', '');
-    const filePath = getRequestBasePath(requestId);
     const fileName = path.join(
-        filePath,
+        getRequestBasePath(requestId),
         `xp-data-query_${branch}_${dateTime}.zip`
     );
 
@@ -50,9 +51,9 @@ export const zipQueryResultAndGetFileName = async (
 
     return new Promise((res, rej) => {
         archive
-            .directory(filePath, false)
-            .on('error', (err) => rej(err))
-            .on('warning', (warn) => console.log(warn))
+            .directory(getRequestJsonPath(requestId), false)
+            .on('error', (error) => rej(error))
+            .on('warning', (error) => console.error(error))
             .pipe(output);
 
         output.on('close', () => {
@@ -67,5 +68,6 @@ export const zipQueryResultAndGetFileName = async (
 };
 
 export const cleanupAfterRequest = (requestId: string) => {
+    console.log(`Cleaning up after ${requestId}`);
     fs.rmSync(path.join(tmpFolder, requestId), { recursive: true });
 };

@@ -1,22 +1,14 @@
 import express from 'express';
 import { v4 as uuid } from 'uuid';
-import { batchedFetchAndSave } from './fetch.js';
+import { fetchQueryAndSaveResponse } from './fetch.js';
 import {
     cleanupAfterRequest,
     zipQueryResultAndGetFileName,
 } from './writeFiles.js';
 import { Params } from './types.js';
-import fs from 'fs';
 
 const app = express();
 const appPort = 2999;
-
-const localXpOrigin = 'http://localhost:8080';
-
-const xpOrigin = process.env.XP_ORIGIN || localXpOrigin;
-const xpServicePath = '/_/service/no.nav.navno/dataQuery';
-
-const xpUrl = `${xpOrigin}${xpServicePath}`;
 
 let waiting = false;
 
@@ -28,29 +20,30 @@ app.get('/query', async (req, res) => {
     }
 
     waiting = true;
+
     const requestId = uuid();
+    const { branch, query } = req.query as Params;
+
+    console.log(
+        `Start processing request ${requestId} - branch: ${branch} - query: ${query}`
+    );
+
+    res.on('finish', () => cleanupAfterRequest(requestId));
 
     try {
-        const queryString = new URL(req.url, xpOrigin).search;
-        const url = `${xpUrl}${queryString}`;
+        await fetchQueryAndSaveResponse(req, requestId);
 
-        await batchedFetchAndSave(url, requestId);
-
-        const { branch } = req.query as Params;
         const zipFileName = await zipQueryResultAndGetFileName(
             requestId,
             branch
         );
-        const zippedData = fs.readFileSync(zipFileName);
 
-        res.set('Content-Type', 'application/zip');
-        res.attachment(zipFileName);
-
-        return res.status(200).send(zippedData);
+        return res.status(200).attachment(zipFileName).sendFile(zipFileName);
     } catch (e) {
-        return res.status(500).send(`Server error - ${e}`);
+        return res
+            .status(500)
+            .send(`Server error on request ${requestId} - ${e}`);
     } finally {
-        cleanupAfterRequest(requestId);
         waiting = false;
     }
 });
