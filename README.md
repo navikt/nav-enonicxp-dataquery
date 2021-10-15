@@ -3,11 +3,13 @@
 Intern service for å kjøre queries mot innhold i [Enonic XP](https://github.com/navikt/nav-enonicxp) CMS'et for nav.no. For å hindre overbelastning har denne ingen concurrency (gir 503-feil dersom servicen er i bruk).
 
 #### Ingress for prod-data
-[https://nav-enonicxp-dataquery.intern.dev.nav.no/query](https://nav-enonicxp-dataquery.intern.dev.nav.no/query)
+Henter data fra www.nav.no:  
+[https://nav-enonicxp-dataquery.intern.dev.nav.no/query](https://nav-enonicxp-dataquery.intern.dev.nav.no/query)  
 [[Logger](https://logs.adeo.no/goto/0121405dea2e36834a8ca664ffc1bc71)]
 
 #### Ingress for dev-data
-[https://nav-enonicxp-dataquery-test.intern.dev.nav.no/query](https://nav-enonicxp-dataquery-test.intern.dev.nav.no/query)
+Henter data fra www.dev.nav.no:  
+[https://nav-enonicxp-dataquery-test.intern.dev.nav.no/query](https://nav-enonicxp-dataquery-test.intern.dev.nav.no/query)  
 [[Logger](https://logs.adeo.no/goto/fc921db2a2eb1f0e99f3d9478d4d66bf)]
 
 ## Parametre
