@@ -70,5 +70,8 @@ export const zipQueryResultAndGetFileName = async (
 
 export const cleanupAfterRequest = (requestId: string) => {
     console.log(`Cleaning up after ${requestId}`);
-    fs.rmSync(path.join(tmpFolder, requestId), { recursive: true });
+    const requestTmpPath = path.join(tmpFolder, requestId);
+    if (fs.existsSync(requestTmpPath)) {
+        fs.rmSync(requestTmpPath, { recursive: true });
+    }
 };
