@@ -16,7 +16,7 @@ branch er påkrevd, resten er optional
 | ------------------ | -----------------------------------------------------
 | branch             | published, unpublished
 | query              | NoQL query string ([se dokumentasjon](https://developer.enonic.com/docs/xp/stable/storage/noql#query)) - hvis tom hentes alt innhold fra branchen
-| types              | array av content-typer queryet skal kjøres mot - hvis tom benyttes default-verdier [1]
+| types              | array av content-typer queryet skal kjøres mot - hvis tom benyttes default-typer [1]
 | fields             | array av felter som skal returneres for hvert treff - hvis tom returneres alle felter
 
 [1] Default content-typer som hentes ut:
@@ -43,7 +43,7 @@ Returnerer ALT publisert innhold:
 https://nav-enonicxp-dataquery.intern.nav.no/query?branch=published
 ```
 
-Returnerer upublisert innhold med innholdstype main-article:
+Returnerer upublisert innhold med innholdstype main-article som inneholder "foo" eller "bar" i artikkelteksten:
 ```
 https://nav-enonicxp-dataquery.intern.nav.no/query?branch=unpublished&types=["no.nav.navno:main-article"]&query=fulltext("data.text", "foo bar", "OR")
 ```
