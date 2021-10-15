@@ -10,6 +10,8 @@ import { Params } from './types.js';
 const app = express();
 const appPort = 2999;
 
+const fiveMinutesInMs = 5 * 60 * 1000;
+
 let waiting = false;
 
 app.get('/query', async (req, res) => {
@@ -28,7 +30,9 @@ app.get('/query', async (req, res) => {
         `Start processing request ${requestId} - branch: ${branch} - query: ${query}`
     );
 
-    res.on('finish', () => cleanupAfterRequest(requestId));
+    res.on('finish', () =>
+        setTimeout(() => cleanupAfterRequest(requestId), fiveMinutesInMs)
+    );
 
     try {
         await fetchQueryAndSaveResponse(req, requestId);
@@ -40,11 +44,13 @@ app.get('/query', async (req, res) => {
 
         return res.status(200).attachment(zipFileName).sendFile(zipFileName);
     } catch (e) {
+        cleanupAfterRequest(requestId);
         return res
             .status(500)
             .send(`Server error on request ${requestId} - ${e}`);
     } finally {
         waiting = false;
+        console.log(`Finished processing request ${requestId}`);
     }
 });
 

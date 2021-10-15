@@ -2,9 +2,11 @@ Intern service for å kjøre queries mot innhold i Enonic XP. For å hindre over
 
 #### Dev url
 [https://nav-enonicxp-dataquery.intern.dev.nav.no/query](https://nav-enonicxp-dataquery.intern.dev.nav.no/query)
+[[Logger](https://logs.adeo.no/goto/0121405dea2e36834a8ca664ffc1bc71)]
 
 #### Prod url
 [https://nav-enonicxp-dataquery.intern.nav.no/query](https://nav-enonicxp-dataquery.intern.nav.no/query)
+[[Logger](https://logs.adeo.no/goto/5147aa9175bdfffeaf716b9acee58680)]
 
 ## Parametre
 
@@ -12,10 +14,10 @@ branch er påkrevd, resten er optional
 
 | Parameter          | Gyldige verdier
 | ------------------ | -----------------------------------------------------
-| branch             | published, unpublished, all
-| query              | NoQL query string ([se dokumentasjon](https://developer.enonic.com/docs/xp/stable/storage/noql#query))
-| types              | array av content-typer queryet skal kjøres mot (overstyrer default-verdier [1])
-| fields             | array av felter som skal returneres for hvert treff (hvis tom returneres alle felter)
+| branch             | published, unpublished
+| query              | NoQL query string ([se dokumentasjon](https://developer.enonic.com/docs/xp/stable/storage/noql#query)) - hvis tom hentes alt innhold fra branchen
+| types              | array av content-typer queryet skal kjøres mot - hvis tom benyttes default-verdier [1]
+| fields             | array av felter som skal returneres for hvert treff - hvis tom returneres alle felter
 
 [1] Default content-typer som hentes ut:
 ```
@@ -41,20 +43,11 @@ Returnerer ALT publisert innhold:
 https://nav-enonicxp-dataquery.intern.nav.no/query?branch=published
 ```
 
-Returnerer publisert innhold med innholdstype main-article:
+Returnerer upublisert innhold med innholdstype main-article:
 ```
-https://nav-enonicxp-dataquery.intern.nav.no/query?branch=published&type=["no.nav.navno:main-article"]
+https://nav-enonicxp-dataquery.intern.nav.no/query?branch=unpublished&types=["no.nav.navno:main-article"]&query=fulltext("data.text", "foo bar", "OR")
 ```
 
 ## Response
 
-```
-{
-    branch,
-    query,
-    types,
-    fields,
-    numHits,
-    hits        // Array med treff
-}
-```
+Returnerer en zip-fil med json-filer for funnet innhold
