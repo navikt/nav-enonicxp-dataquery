@@ -1,4 +1,4 @@
-## Enonic XP data query
+# Enonic XP data query
 
 Intern service for å kjøre queries mot innhold i [Enonic XP](https://github.com/navikt/nav-enonicxp) CMS'et for nav.no. For å hindre overbelastning har denne ingen concurrency (gir 503-feil dersom servicen er i bruk).
 
