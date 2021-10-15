@@ -21,10 +21,18 @@ app.get('/query', async (req, res) => {
             .send('Service is currently busy - try again in a moment');
     }
 
-    waiting = true;
-
-    const requestId = uuid();
     const { branch, query } = req.query as Params;
+
+    if (branch !== 'published' && branch !== 'unpublished') {
+        return res
+            .status(400)
+            .send(
+                'Parameter "branch" must be either "published" or "unpublished"'
+            );
+    }
+
+    waiting = true;
+    const requestId = uuid();
 
     console.log(
         `Start processing request ${requestId} - branch: ${branch} - query: ${query}`
