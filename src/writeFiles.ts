@@ -4,13 +4,12 @@ import archiver from 'archiver';
 import { Branch, QuerySummary, XpContent } from './types.js';
 
 const localTmp = path.join(path.resolve(), 'tmp');
-const tmpFolder = process.env.TMP_FOLDER || localTmp;
+const tmpFolder = process.env.TMP_DIR || localTmp;
 
 const getRequestBasePath = (requestId: string) =>
     path.join(tmpFolder, requestId);
 
 const getRequestJsonPath = (requestId: string) =>
-
     path.join(getRequestBasePath(requestId), 'json');
 
 const objectToJson = (obj: object) => JSON.stringify(obj, null, 4);

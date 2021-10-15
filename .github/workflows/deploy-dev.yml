@@ -41,6 +41,8 @@ jobs:
               value: ${{ secrets.XP_SERVICE_SECRET }}
             - name: XP_ORIGIN
               value: https://www.dev.nav.no
+            - name: TMP_DIR
+              value: /tmp
           EOF
       - uses: nais/deploy/actions/deploy@master
         env:
