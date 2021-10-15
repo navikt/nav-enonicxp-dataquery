@@ -14,6 +14,8 @@ const getRequestJsonPath = (requestId: string) =>
 
 const objectToJson = (obj: object) => JSON.stringify(obj, null, 4);
 
+console.log(`temp dir: ${tmpFolder}`);
+
 export const saveHitsToJsonFiles = (hits: XpContent[], requestId: string) => {
     hits.forEach((hit) => {
         const data = objectToJson(hit);
