@@ -33,6 +33,11 @@ export const fetchQueryAndSaveResponse = async (
             ?.includes?.('application/json');
 
         if (!isJson) {
+            console.error(
+                `Invalid response from XP: ${JSON.stringify(
+                    batchResponse.headers
+                )}`
+            );
             throw new Error(
                 'Invalid response from XP - expected a JSON response'
             );
