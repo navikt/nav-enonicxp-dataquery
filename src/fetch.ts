@@ -52,6 +52,7 @@ export const fetchQueryAndSaveResponse = async (
             );
         }
 
+        // consistency check for batched requests
         hits.forEach((hit) => {
             const id = hit._id;
 
