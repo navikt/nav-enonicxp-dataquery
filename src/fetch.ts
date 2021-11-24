@@ -21,7 +21,10 @@ export const fetchQueryAndSaveResponse = async (
     const queryString = new URL(req.url, xpOrigin).search;
     const url = `${xpUrl}${queryString}`;
 
-    const runBatch = async (prevCount = 0) => {
+    const runBatch = async (
+        prevCount = 0,
+        idSet: { [id: string]: boolean } = {}
+    ) => {
         const batchResponse = await fetch(`${url}&start=${prevCount}`, {
             headers: { secret: serviceSecret },
         });
@@ -46,6 +49,26 @@ export const fetchQueryAndSaveResponse = async (
             );
         }
 
+        const newIdSet = hits.reduce((acc, hit) => {
+            const id = hit._id;
+
+            if (!id) {
+                console.error(
+                    `Warning, missing ids found in response for request id ${requestId} - path: ${hit._path}`
+                );
+                return acc;
+            }
+
+            if (acc[id]) {
+                console.error(
+                    `Warning, duplicate ids found in response for request id ${requestId}`
+                );
+                return acc;
+            }
+
+            return { ...acc, [id]: true };
+        }, idSet);
+
         saveHitsToJsonFiles(hits, requestId);
 
         const currentCount = hits.length + prevCount;
@@ -54,9 +77,13 @@ export const fetchQueryAndSaveResponse = async (
             console.log(
                 `Fetched ${currentCount} hits of ${total} total - fetching another batch`
             );
-            await runBatch(currentCount);
+            await runBatch(currentCount, newIdSet);
         } else {
-            console.log(`Finished running query with ${currentCount} hits`);
+            const numUniqueIds = Object.keys(newIdSet).length;
+
+            console.log(
+                `Finished running query with request id ${requestId}. ${currentCount} hits and ${numUniqueIds} unique ids were returned`
+            );
             const { branch, query, fields, types } = json;
             saveSummary(
                 { query, branch, fields, types, numHits: currentCount },
