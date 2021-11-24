@@ -15,6 +15,7 @@ export type XpContent = {
 export type XpServiceResponse = Params & {
     total: number;
     hits: XpContent[];
+    message?: string;
 };
 
 export type QuerySummary = Pick<

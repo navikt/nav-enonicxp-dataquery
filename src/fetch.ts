@@ -19,7 +19,7 @@ export const fetchQueryAndSaveResponse = async (
     requestId: string
 ) => {
     const queryString = new URL(req.url, xpOrigin).search;
-    const url = `${xpUrl}${queryString}`;
+    const url = `${xpUrl}${queryString}&requestId=${requestId}`;
 
     const idSet: { [id: string]: boolean } = {};
 
@@ -40,11 +40,15 @@ export const fetchQueryAndSaveResponse = async (
 
         const json = (await batchResponse.json()) as XpServiceResponse;
 
-        const { total, hits } = json;
+        const { total, hits, message } = json;
 
         if (!hits) {
             throw new Error(
-                'Invalid response from XP - no hits array received'
+                `${
+                    message
+                        ? `Error from XP: ${message}`
+                        : 'Invalid response from XP - no hits array received'
+                }`
             );
         }
 
