@@ -21,10 +21,9 @@ export const fetchQueryAndSaveResponse = async (
     const queryString = new URL(req.url, xpOrigin).search;
     const url = `${xpUrl}${queryString}`;
 
-    const runBatch = async (
-        prevCount = 0,
-        idSet: { [id: string]: boolean } = {}
-    ) => {
+    const idSet: { [id: string]: boolean } = {};
+
+    const runBatch = async (prevCount = 0) => {
         const batchResponse = await fetch(`${url}&start=${prevCount}`, {
             headers: { secret: serviceSecret },
         });
@@ -49,25 +48,21 @@ export const fetchQueryAndSaveResponse = async (
             );
         }
 
-        const newIdSet = hits.reduce((acc, hit) => {
+        hits.forEach((hit) => {
             const id = hit._id;
 
             if (!id) {
                 console.error(
                     `Warning, missing ids found in response for request id ${requestId} - path: ${hit._path}`
                 );
-                return acc;
-            }
-
-            if (acc[id]) {
+            } else if (idSet[id]) {
                 console.error(
                     `Warning, duplicate ids found in response for request id ${requestId}`
                 );
-                return acc;
+            } else {
+                idSet[id] = true;
             }
-
-            return { ...acc, [id]: true };
-        }, idSet);
+        });
 
         saveHitsToJsonFiles(hits, requestId);
 
@@ -77,9 +72,9 @@ export const fetchQueryAndSaveResponse = async (
             console.log(
                 `Fetched ${currentCount} hits of ${total} total - fetching another batch`
             );
-            await runBatch(currentCount, newIdSet);
+            await runBatch(currentCount);
         } else {
-            const numUniqueIds = Object.keys(newIdSet).length;
+            const numUniqueIds = Object.keys(idSet).length;
 
             console.log(
                 `Finished running query with request id ${requestId}. ${currentCount} hits and ${numUniqueIds} unique ids were returned`
