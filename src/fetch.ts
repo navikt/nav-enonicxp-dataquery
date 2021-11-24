@@ -53,11 +53,11 @@ export const fetchQueryAndSaveResponse = async (
 
             if (!id) {
                 console.error(
-                    `Warning, missing ids found in response for request id ${requestId} - path: ${hit._path}`
+                    `Warning, missing id found in response for request id ${requestId} - path: ${hit._path}`
                 );
             } else if (idSet[id]) {
                 console.error(
-                    `Warning, duplicate ids found in response for request id ${requestId}`
+                    `Warning, duplicate content id ${id} found in response for request id ${requestId}`
                 );
             } else {
                 idSet[id] = true;
