@@ -33,6 +33,7 @@ app.get('/query', async (req, res) => {
 
     waiting = true;
     const requestId = uuid();
+    const startTime = Date.now();
 
     console.log(
         `Start processing request ${requestId} - branch: ${branch} - query: ${query}`
@@ -58,7 +59,10 @@ app.get('/query', async (req, res) => {
             .send(`Server error on request ${requestId} - ${e}`);
     } finally {
         waiting = false;
-        console.log(`Finished processing request ${requestId}`);
+        const timeSpentSec = (Date.now() - startTime) / 1000;
+        console.log(
+            `Finished processing request ${requestId} - time spent: ${timeSpentSec}`
+        );
     }
 });
 
