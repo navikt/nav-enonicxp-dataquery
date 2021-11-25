@@ -23,10 +23,15 @@ export const fetchQueryAndSaveResponse = async (
 
     const idSet: { [id: string]: boolean } = {};
 
-    const runBatch = async (prevCount = 0) => {
+    const runBatch = async (prevCount = 0, stickyCookie?: string | null) => {
         const batchResponse = await fetch(`${url}&start=${prevCount}`, {
-            headers: { secret: serviceSecret },
+            headers: {
+                secret: serviceSecret,
+                ...(stickyCookie && { cookie: stickyCookie }),
+            },
         });
+
+        console.log(`Sticky cookie: ${stickyCookie}`);
 
         const isJson = batchResponse.headers
             ?.get('content-type')
@@ -34,9 +39,7 @@ export const fetchQueryAndSaveResponse = async (
 
         if (!isJson) {
             console.error(
-                `Invalid response from XP: ${JSON.stringify(
-                    batchResponse.headers
-                )}`
+                `Invalid response from XP: ${JSON.stringify(batchResponse)}`
             );
             throw new Error(
                 'Invalid response from XP - expected a JSON response'
@@ -82,7 +85,11 @@ export const fetchQueryAndSaveResponse = async (
             console.log(
                 `Fetched ${currentCount} hits of ${total} total - fetching another batch`
             );
-            await runBatch(currentCount);
+
+            await runBatch(
+                currentCount,
+                stickyCookie || batchResponse.headers.get('set-cookie')
+            );
         } else {
             const numUniqueIds = Object.keys(idSet).length;
 
