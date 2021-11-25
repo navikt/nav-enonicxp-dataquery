@@ -80,11 +80,11 @@ export const fetchQueryAndSaveResponse = async (
 
         saveHitsToJsonFiles(uniqueHits, requestId);
 
-        const currentCount = Object.keys(idSet).length;
+        const hitCount = Object.keys(idSet).length;
 
         if (hasMore) {
             console.log(
-                `Fetched ${currentCount} hits of ${total} total - fetching another batch`
+                `Fetched ${hitCount} hits of ${total} total - fetching another batch`
             );
 
             await runBatch(
@@ -92,14 +92,12 @@ export const fetchQueryAndSaveResponse = async (
                 stickyCookie || batchResponse.headers.get('set-cookie')
             );
         } else {
-            const numUniqueIds = Object.keys(idSet).length;
-
             console.log(
-                `Finished running query with request id ${requestId}. ${numUniqueIds} hits were returned, server promised ${total} total`
+                `Finished running query with request id ${requestId}. ${hitCount} hits were returned, server promised ${total} total`
             );
             const { branch, query, fields, types } = json;
             saveSummary(
-                { query, branch, fields, types, numHits: currentCount },
+                { query, branch, fields, types, numHits: hitCount },
                 requestId
             );
         }
