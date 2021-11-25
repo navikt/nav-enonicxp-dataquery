@@ -27,7 +27,7 @@ export const fetchQueryAndSaveResponse = async (
         const batchResponse = await fetch(`${url}&start=${prevCount}`, {
             headers: {
                 secret: serviceSecret,
-                ...(stickyCookie && { cookie: stickyCookie }),
+                // ...(stickyCookie && { cookie: stickyCookie }),
             },
         });
 
