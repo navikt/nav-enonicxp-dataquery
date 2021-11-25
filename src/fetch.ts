@@ -95,7 +95,7 @@ export const fetchQueryAndSaveResponse = async (
             const numUniqueIds = Object.keys(idSet).length;
 
             console.log(
-                `Finished running query with request id ${requestId}. ${numUniqueIds} unique ids were returned, server promised ${total} total`
+                `Finished running query with request id ${requestId}. ${numUniqueIds} hits were returned, server promised ${total} total`
             );
             const { branch, query, fields, types } = json;
             saveSummary(
