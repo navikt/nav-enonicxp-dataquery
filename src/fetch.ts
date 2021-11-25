@@ -61,7 +61,7 @@ export const fetchQueryAndSaveResponse = async (
         }
 
         // consistency check for batched requests
-        hits.forEach((hit) => {
+        hits.some((hit) => {
             const id = hit._id;
 
             if (!id) {
@@ -72,6 +72,7 @@ export const fetchQueryAndSaveResponse = async (
                 console.error(
                     `Warning, duplicate content id ${id} found in response for request id ${requestId}`
                 );
+                return true;
             } else {
                 idSet[id] = true;
             }
