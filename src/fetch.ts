@@ -59,7 +59,7 @@ export const fetchQueryAndSaveResponse = async (
         }
 
         // consistency check for batched requests
-        const dupes = hits.filter((hit) => {
+        const uniqueHits = hits.filter((hit) => {
             const id = hit._id;
 
             if (!id) {
@@ -68,22 +68,19 @@ export const fetchQueryAndSaveResponse = async (
                 );
                 return false;
             } else if (idSet[id]) {
-                return true;
+                console.error(
+                    `Warning, duplicate id ${id} found in response for request id ${requestId} - path: ${hit._path}`
+                );
+                return false;
             } else {
                 idSet[id] = true;
-                return false;
+                return true;
             }
         });
 
-        if (dupes.length > 0) {
-            console.error(
-                `Warning, ${dupes.length} duplicate content ids found in response for request id ${requestId}`
-            );
-        }
+        saveHitsToJsonFiles(uniqueHits, requestId);
 
-        saveHitsToJsonFiles(hits, requestId);
-
-        const currentCount = hits.length + batch;
+        const currentCount = Object.keys(idSet).length;
 
         if (hasMore) {
             console.log(
@@ -98,7 +95,7 @@ export const fetchQueryAndSaveResponse = async (
             const numUniqueIds = Object.keys(idSet).length;
 
             console.log(
-                `Finished running query with request id ${requestId}. ${currentCount} hits and ${numUniqueIds} unique ids were returned`
+                `Finished running query with request id ${requestId}. ${numUniqueIds} unique ids were returned, server promised ${total} total`
             );
             const { branch, query, fields, types } = json;
             saveSummary(
