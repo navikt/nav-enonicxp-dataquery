@@ -23,15 +23,13 @@ export const fetchQueryAndSaveResponse = async (
 
     const idSet: { [id: string]: boolean } = {};
 
-    const runBatch = async (prevCount = 0, stickyCookie?: string | null) => {
-        const batchResponse = await fetch(`${url}&start=${prevCount}`, {
+    const runBatch = async (batch = 0, stickyCookie?: string | null) => {
+        const batchResponse = await fetch(`${url}&batch=${batch}`, {
             headers: {
                 secret: serviceSecret,
                 ...(stickyCookie && { cookie: stickyCookie }),
             },
         });
-
-        console.log(`Sticky cookie: ${stickyCookie}`);
 
         const isJson = batchResponse.headers
             ?.get('content-type')
@@ -48,7 +46,7 @@ export const fetchQueryAndSaveResponse = async (
 
         const json = (await batchResponse.json()) as XpServiceResponse;
 
-        const { total, hits, message } = json;
+        const { hasMore, hits, message, total } = json;
 
         if (!hits) {
             throw new Error(
@@ -85,15 +83,15 @@ export const fetchQueryAndSaveResponse = async (
 
         saveHitsToJsonFiles(hits, requestId);
 
-        const currentCount = hits.length + prevCount;
+        const currentCount = hits.length + batch;
 
-        if (total > currentCount && hits.length > 0) {
+        if (hasMore) {
             console.log(
                 `Fetched ${currentCount} hits of ${total} total - fetching another batch`
             );
 
             await runBatch(
-                currentCount,
+                batch + 1,
                 stickyCookie || batchResponse.headers.get('set-cookie')
             );
         } else {

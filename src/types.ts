@@ -13,8 +13,9 @@ export type XpContent = {
 };
 
 export type XpServiceResponse = Params & {
-    total: number;
+    hasMore: boolean;
     hits: XpContent[];
+    total: number;
     message?: string;
 };
 
