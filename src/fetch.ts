@@ -61,22 +61,27 @@ export const fetchQueryAndSaveResponse = async (
         }
 
         // consistency check for batched requests
-        hits.some((hit) => {
+        const dupes = hits.filter((hit) => {
             const id = hit._id;
 
             if (!id) {
                 console.error(
                     `Warning, missing id found in response for request id ${requestId} - path: ${hit._path}`
                 );
+                return false;
             } else if (idSet[id]) {
-                console.error(
-                    `Warning, duplicate content id ${id} found in response for request id ${requestId}`
-                );
                 return true;
             } else {
                 idSet[id] = true;
+                return false;
             }
         });
+
+        if (dupes.length > 0) {
+            console.error(
+                `Warning, ${dupes.length} duplicate content ids found in response for request id ${requestId}`
+            );
+        }
 
         saveHitsToJsonFiles(hits, requestId);
 
