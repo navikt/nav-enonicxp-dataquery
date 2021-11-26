@@ -12,10 +12,11 @@ const appPort = 2999;
 
 const fiveMinutesInMs = 5 * 60 * 1000;
 
-let waiting = false;
+const maxReqs = 10;
+let currentReqs = 0;
 
 app.get('/query', async (req, res) => {
-    if (waiting) {
+    if (currentReqs >= maxReqs) {
         return res
             .status(503)
             .send('Service is currently busy - try again in a moment');
@@ -31,7 +32,7 @@ app.get('/query', async (req, res) => {
             );
     }
 
-    waiting = true;
+    currentReqs++;
     const requestId = uuid();
     const startTime = Date.now();
 
@@ -58,7 +59,7 @@ app.get('/query', async (req, res) => {
             .status(500)
             .send(`Server error on request ${requestId} - ${e}`);
     } finally {
-        waiting = false;
+        currentReqs--;
         const timeSpentSec = (Date.now() - startTime) / 1000;
         console.log(
             `Finished processing request ${requestId} - time spent: ${timeSpentSec}`
