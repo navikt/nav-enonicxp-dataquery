@@ -5,7 +5,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: prod-sbs:personbruker
+    environment: prod-gcp:personbruker
     steps:
       - uses: actions/checkout@v1
       - name: Define build environment

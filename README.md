@@ -4,12 +4,12 @@ Intern service for å kjøre queries mot innhold i [Enonic XP](https://github.co
 
 #### Ingress for prod-data
 Henter data fra www.nav.no:  
-[https://nav-enonicxp-dataquery.intern.dev.nav.no/query](https://nav-enonicxp-dataquery.intern.dev.nav.no/query)  
+[https://nav-enonicxp-dataquery.intern.nav.no/query](https://nav-enonicxp-dataquery.intern.nav.no/query)  
 [[Logger](https://logs.adeo.no/goto/0121405dea2e36834a8ca664ffc1bc71)]
 
 #### Ingress for dev-data
 Henter data fra www.dev.nav.no:  
-[https://nav-enonicxp-dataquery-test.intern.dev.nav.no/query](https://nav-enonicxp-dataquery-test.intern.dev.nav.no/query)  
+[https://nav-enonicxp-dataquery.dev.intern.nav.no/query](https://nav-enonicxp-dataquery.dev.intern.nav.no/query)  
 [[Logger](https://logs.adeo.no/goto/fc921db2a2eb1f0e99f3d9478d4d66bf)]
 
 ## Parametre
