@@ -44,12 +44,12 @@ branch er påkrevd, resten er optional
 ### Eksempler
 Returnerer ALT publisert innhold:
 ```
-https://nav-enonicxp-dataquery.intern.dev.nav.no/query?branch=published
+https://nav-enonicxp-dataquery.intern.nav.no/query?branch=published
 ```
 
 Returnerer upublisert innhold med innholdstype main-article som inneholder "foo" eller "bar" i artikkelteksten:
 ```
-https://nav-enonicxp-dataquery.intern.dev.nav.no/query?branch=unpublished&types=["no.nav.navno:main-article"]&query=fulltext("data.text", "foo bar", "OR")
+https://nav-enonicxp-dataquery.intern.nav.no/query?branch=unpublished&types=["no.nav.navno:main-article"]&query=fulltext("data.text", "foo bar", "OR")
 ```
 
 ## Response
