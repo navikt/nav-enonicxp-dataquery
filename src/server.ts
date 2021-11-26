@@ -37,7 +37,7 @@ app.get('/query', async (req, res) => {
     const startTime = Date.now();
 
     console.log(
-        `Start processing request ${requestId} - branch: ${branch} - query: ${query}`
+        `Start processing request ${requestId} - branch: ${branch} - query: ${query} - number of concurrent requests: ${currentReqs}`
     );
 
     res.on('finish', () =>
