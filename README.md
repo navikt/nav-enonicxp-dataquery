@@ -1,6 +1,6 @@
 # Enonic XP data query
 
-Intern service for å kjøre queries mot innhold i [Enonic XP](https://github.com/navikt/nav-enonicxp) CMS'et for nav.no. For å hindre overbelastning har denne ingen concurrency (gir 503-feil dersom servicen er i bruk).
+Intern service for å kjøre queries mot innhold i [Enonic XP](https://github.com/navikt/nav-enonicxp) CMS'et for nav.no. For å hindre overbelastning håndterer denne maks 10 requests samtidig (gir 503-feil dersom servicen på denne grensen).
 
 #### Ingress for prod-data
 Henter data fra www.nav.no:  
