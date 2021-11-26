@@ -1,4 +1,4 @@
-name: deploy-to-prod
+name: deploy-to-prod-sbs
 on:
   workflow_dispatch
 
