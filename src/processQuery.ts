@@ -1,7 +1,13 @@
 import fetch from 'node-fetch';
-import { saveHitsToJsonFiles, saveSummary } from './writeFiles.js';
-import { XpServiceResponse } from './types.js';
-import { Request } from 'express';
+import {
+    cleanupAfterRequest,
+    saveHitsToJsonFiles,
+    saveSummary,
+    zipQueryResultAndGetFileName,
+} from './writeFiles.js';
+import { Params, XpServiceResponse } from './types.js';
+import { Request, Response } from 'express';
+import NodeCache from 'node-cache';
 
 const serviceSecret = process.env.XP_SERVICE_SECRET || 'dummyToken';
 
@@ -12,12 +18,35 @@ const xpServicePath = '/_/service/no.nav.navno/dataQuery';
 
 const xpUrl = `${xpOrigin}${xpServicePath}`;
 
-// The XP service has a max hit-count to prevent timeouts. We have to do queries in batches
-// if the total number of hits exceeds the max count
+type CacheItem = {
+    requestId: string;
+    timestamp: number;
+    progress: number;
+};
+
+const cache = new NodeCache({ stdTTL: 1800 });
+
+cache.on('expired', (key, { requestId }: CacheItem) => {
+    cleanupAfterRequest(requestId);
+});
+
+const setReqState = (requestId: string, progress: number) =>
+    cache.set<CacheItem>(requestId, {
+        requestId,
+        progress,
+        timestamp: Date.now(),
+    });
+
+const getReqState = (requestId: string) => cache.get<CacheItem>(requestId);
+
+// The XP service has a max hit-count per request, in order to prevent timeouts.
+// We have to do batched queries if the total number of hits exceeds the max
 export const fetchQueryAndSaveResponse = async (
     req: Request,
+    res: Response,
     requestId: string
 ) => {
+    const { branch } = req.query as Params;
     const queryString = new URL(req.url, xpOrigin).search;
     const url = `${xpUrl}${queryString}&requestId=${requestId}`;
 
@@ -86,6 +115,7 @@ export const fetchQueryAndSaveResponse = async (
             console.log(
                 `Fetched ${hitCount} hits of ${total} total - fetching another batch`
             );
+            setReqState(requestId, Math.floor(hitCount / total));
 
             await runBatch(
                 batch + 1,
@@ -95,6 +125,7 @@ export const fetchQueryAndSaveResponse = async (
             console.log(
                 `Finished running query with request id ${requestId}. ${hitCount} hits were returned, server promised ${total} total`
             );
+            setReqState(requestId, 100);
             const { branch, query, fields, types } = json;
             saveSummary(
                 { query, branch, fields, types, numHits: hitCount },
@@ -104,4 +135,8 @@ export const fetchQueryAndSaveResponse = async (
     };
 
     await runBatch();
+
+    const zipFileName = await zipQueryResultAndGetFileName(requestId, branch);
+
+    return res.status(200).attachment(zipFileName).sendFile(zipFileName);
 };

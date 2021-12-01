@@ -4,17 +4,16 @@ import archiver from 'archiver';
 import { Branch, QuerySummary, XpContent } from './types.js';
 
 const localTmp = path.join(path.resolve(), 'tmp');
-const tmpFolder = process.env.TMP_DIR || localTmp;
+const tmpDir = process.env.TMP_DIR || localTmp;
 
-const getRequestBasePath = (requestId: string) =>
-    path.join(tmpFolder, requestId);
+const getRequestBasePath = (requestId: string) => path.join(tmpDir, requestId);
 
 const getRequestJsonPath = (requestId: string) =>
     path.join(getRequestBasePath(requestId), 'json');
 
 const objectToJson = (obj: object) => JSON.stringify(obj, null, 4);
 
-console.log(`temp dir: ${tmpFolder}`);
+console.log(`Using temp dir: ${tmpDir}`);
 
 export const saveHitsToJsonFiles = (hits: XpContent[], requestId: string) => {
     hits.forEach((hit) => {
@@ -70,7 +69,7 @@ export const zipQueryResultAndGetFileName = async (
 
 export const cleanupAfterRequest = (requestId: string) => {
     console.log(`Cleaning up after ${requestId}`);
-    const requestTmpPath = path.join(tmpFolder, requestId);
+    const requestTmpPath = path.join(tmpDir, requestId);
     if (fs.existsSync(requestTmpPath)) {
         fs.rmSync(requestTmpPath, { recursive: true });
     }

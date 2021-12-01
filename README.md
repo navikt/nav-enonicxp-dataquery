@@ -12,18 +12,20 @@ Henter data fra www.dev.nav.no:
 [https://nav-enonicxp-dataquery.dev.intern.nav.no/query](https://nav-enonicxp-dataquery.dev.intern.nav.no/query)  
 [[Logger](https://logs.adeo.no/goto/7fe57e567121032648513ec3ea6ad585)]
 
-## Parametre
+## Request
+
+### Parametre
 
 branch er påkrevd, resten er optional
 
 | Parameter          | Gyldige verdier
 | ------------------ | -----------------------------------------------------
 | branch             | published, unpublished
-| query              | NoQL query string ([se dokumentasjon](https://developer.enonic.com/docs/xp/stable/storage/noql#query)) - hvis tom hentes alt innhold fra branchen
-| types              | array av content-typer queryet skal kjøres mot - hvis tom benyttes default-typer [1]
+| query              | NoQL query string ([se dokumentasjon](https://developer.enonic.com/docs/xp/stable/storage/noql#query)) - hvis tom hentes alt innhold fra valgt branch
+| types              | array av content-typer queryet skal kjøres mot - hvis tom benyttes default typer [1]
 | fields             | array av felter som skal returneres for hvert treff - hvis tom returneres alle felter
 
-[1] Default content-typer som hentes ut:
+[1] Default content-typer:
 ```
 'no.nav.navno:situation-page'
 'no.nav.navno:dynamic-page'

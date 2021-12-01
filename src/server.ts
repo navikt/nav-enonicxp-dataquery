@@ -1,6 +1,6 @@
 import express from 'express';
 import { v4 as uuid } from 'uuid';
-import { fetchQueryAndSaveResponse } from './fetch.js';
+import { fetchQueryAndSaveResponse } from './processQuery.js';
 import {
     cleanupAfterRequest,
     zipQueryResultAndGetFileName,
@@ -40,19 +40,8 @@ app.get('/query', async (req, res) => {
         `Start processing request ${requestId} - branch: ${branch} - query: ${query} - number of concurrent requests: ${currentReqs}`
     );
 
-    res.on('finish', () =>
-        setTimeout(() => cleanupAfterRequest(requestId), fiveMinutesInMs)
-    );
-
     try {
-        await fetchQueryAndSaveResponse(req, requestId);
-
-        const zipFileName = await zipQueryResultAndGetFileName(
-            requestId,
-            branch
-        );
-
-        return res.status(200).attachment(zipFileName).sendFile(zipFileName);
+        await fetchQueryAndSaveResponse(req, res, requestId);
     } catch (e) {
         cleanupAfterRequest(requestId);
         return res
