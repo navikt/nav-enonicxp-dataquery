@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import archiver from 'archiver';
-import { Branch, QuerySummary, XpContent } from './types.js';
+import { Branch, QuerySummary, XpContent } from './types';
+import { getRequestState } from './state';
 
 const localTmp = path.join(path.resolve(), 'tmp');
 const tmpDir = process.env.TMP_DIR || localTmp;
@@ -44,11 +45,13 @@ export const saveSummary = (summary: QuerySummary, requestId: string) => {
     );
 };
 
-export const zipQueryResultAndGetFileName = async (
-    requestId: string,
-    branch: Branch
-): Promise<string> => {
-    const fileName = getResultFilename(requestId, branch);
+export const zipQueryResult = async (requestId: string): Promise<string> => {
+    const fileName = getRequestState(requestId)?.filename;
+    if (!fileName) {
+        throw new Error(
+            `Could not zip query result for requestId ${requestId} - filename was not defined`
+        );
+    }
 
     const output = fs.createWriteStream(fileName);
     const archive = archiver('zip', { zlib: { level: 9 } });

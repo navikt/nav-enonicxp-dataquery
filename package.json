@@ -5,8 +5,8 @@
   "type": "module",
   "module": "es",
   "scripts": {
-    "build": "rm -fr distSrc && tsc",
-    "start": "npm run build && node distSrc/server.js"
+    "build": "rm -fr dist && tsc",
+    "start": "npm run build && node --experimental-specifier-resolution=node dist/server.js"
   },
   "dependencies": {
     "archiver": "^5.3.0",

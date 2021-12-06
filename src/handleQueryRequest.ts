@@ -8,7 +8,7 @@ const maxReqs = 10;
 
 let currentReqs = 0;
 
-export const handleQuery = async (req: Request, res: Response) => {
+export const handleQueryRequest = async (req: Request, res: Response) => {
     if (currentReqs >= maxReqs) {
         return res
             .status(503)

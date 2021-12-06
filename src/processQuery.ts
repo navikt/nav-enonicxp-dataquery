@@ -1,13 +1,9 @@
 import fetch from 'node-fetch';
-import {
-    cleanupAfterRequest,
-    saveHitsToJsonFiles,
-    saveSummary,
-    zipQueryResultAndGetFileName,
-} from './writeFiles.js';
-import { Params, XpServiceResponse } from './types.js';
+import { saveHitsToJsonFiles, saveSummary, zipQueryResult } from './writeFiles';
+import { Params, XpServiceResponse } from './types';
 import { Request, Response } from 'express';
-import NodeCache from 'node-cache';
+import { addRequest, markRequestDone, updateRequestProgress } from './state';
+import { getResultUrl } from './handleResultRequest';
 
 const serviceSecret = process.env.XP_SERVICE_SECRET || 'dummyToken';
 
@@ -18,8 +14,6 @@ const xpServicePath = '/_/service/no.nav.navno/dataQuery';
 
 const xpUrl = `${xpOrigin}${xpServicePath}`;
 
-const getReqState = (requestId: string) => cache.get<CacheItem>(requestId);
-
 // The XP service has a max hit-count per request, in order to prevent timeouts.
 // We have to do batched queries if the total number of hits exceeds the max
 export const fetchQueryAndSaveResponse = async (
@@ -27,13 +21,11 @@ export const fetchQueryAndSaveResponse = async (
     res: Response,
     requestId: string
 ) => {
-    const { branch } = req.query as Params;
-    const queryString = new URL(req.url, xpOrigin).search;
-    const url = `${xpUrl}${queryString}&requestId=${requestId}`;
-
-    const idSet: { [id: string]: boolean } = {};
-
-    const runBatch = async (batch = 0, stickyCookie?: string | null) => {
+    const runQuery = async (
+        batch = 0,
+        idSet: { [id: string]: boolean } = {},
+        stickyCookie?: string | null
+    ) => {
         const batchResponse = await fetch(`${url}&batch=${batch}`, {
             headers: {
                 secret: serviceSecret,
@@ -92,21 +84,34 @@ export const fetchQueryAndSaveResponse = async (
 
         const hitCount = Object.keys(idSet).length;
 
+        if (batch === 0) {
+            res.status(200).send({
+                message: `Processing query - total hit count ${total} `,
+                hits: total,
+                requestId,
+                resultUrl: getResultUrl(requestId),
+            });
+        }
+
         if (hasMore) {
             console.log(
                 `Fetched ${hitCount} hits of ${total} total - fetching another batch`
             );
-            setReqState(requestId, Math.floor(hitCount / total));
+            updateRequestProgress(
+                requestId,
+                Math.floor((hitCount / total) * 100)
+            );
 
-            await runBatch(
+            await runQuery(
                 batch + 1,
+                idSet,
                 stickyCookie || batchResponse.headers.get('set-cookie')
             );
         } else {
             console.log(
                 `Finished running query with request id ${requestId}. ${hitCount} hits were returned, server promised ${total} total`
             );
-            setReqState(requestId, 100);
+            updateRequestProgress(requestId, 100);
             const { branch, query, fields, types } = json;
             saveSummary(
                 { query, branch, fields, types, numHits: hitCount },
@@ -115,9 +120,13 @@ export const fetchQueryAndSaveResponse = async (
         }
     };
 
-    await runBatch();
+    const { branch } = req.query as Params;
+    const queryString = new URL(req.url, xpOrigin).search;
+    const url = `${xpUrl}${queryString}&requestId=${requestId}`;
 
-    const zipFileName = await zipQueryResultAndGetFileName(requestId, branch);
+    addRequest(requestId, branch, 0);
 
-    return res.status(200).attachment(zipFileName).sendFile(zipFileName);
+    await runQuery()
+        .then(() => zipQueryResult(requestId))
+        .then(() => markRequestDone(requestId));
 };

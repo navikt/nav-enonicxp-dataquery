@@ -43,6 +43,8 @@ jobs:
               value: https://www.dev.nav.no
             - name: TMP_DIR
               value: /tmp
+            - name: APP_ORIGIN
+              value: https://nav-enonicxp-dataquery.dev.intern.nav.no
           EOF
       - uses: nais/deploy/actions/deploy@master
         env:

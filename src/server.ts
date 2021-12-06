@@ -1,13 +1,13 @@
 import express from 'express';
-import { handleQuery } from './handleQuery.js';
-import { handleResult } from './handleResult';
+import { handleQueryRequest } from './handleQueryRequest';
+import { handleResultRequest, resultApiPath } from './handleResultRequest';
 
 const app = express();
 const appPort = 2999;
 
-app.get('/query', handleQuery);
+app.get('/query', handleQueryRequest);
 
-app.get('/result/:requestId', handleResult);
+app.get(`${resultApiPath}/:requestId?`, handleResultRequest);
 
 app.get('/internal/isAlive', (req, res) => {
     return res.status(200).send('I am alive!');
