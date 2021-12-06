@@ -15,6 +15,14 @@ const objectToJson = (obj: object) => JSON.stringify(obj, null, 4);
 
 console.log(`Using temp dir: ${tmpDir}`);
 
+export const getResultFilename = (requestId: string, branch: Branch) => {
+    const dateTime = new Date().toISOString().replaceAll(':', '');
+    return path.join(
+        getRequestBasePath(requestId),
+        `xp-data-query_${branch}_${dateTime}.zip`
+    );
+};
+
 export const saveHitsToJsonFiles = (hits: XpContent[], requestId: string) => {
     hits.forEach((hit) => {
         const data = objectToJson(hit);
@@ -40,11 +48,7 @@ export const zipQueryResultAndGetFileName = async (
     requestId: string,
     branch: Branch
 ): Promise<string> => {
-    const dateTime = new Date().toISOString().replaceAll(':', '');
-    const fileName = path.join(
-        getRequestBasePath(requestId),
-        `xp-data-query_${branch}_${dateTime}.zip`
-    );
+    const fileName = getResultFilename(requestId, branch);
 
     const output = fs.createWriteStream(fileName);
     const archive = archiver('zip', { zlib: { level: 9 } });

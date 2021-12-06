@@ -19,7 +19,4 @@ export type XpServiceResponse = Params & {
     message?: string;
 };
 
-export type QuerySummary = Pick<
-    XpServiceResponse,
-    'branch' | 'query' | 'types' | 'fields'
-> & { numHits: number };
+export type QuerySummary = Params & { numHits: number };

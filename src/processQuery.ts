@@ -18,25 +18,6 @@ const xpServicePath = '/_/service/no.nav.navno/dataQuery';
 
 const xpUrl = `${xpOrigin}${xpServicePath}`;
 
-type CacheItem = {
-    requestId: string;
-    timestamp: number;
-    progress: number;
-};
-
-const cache = new NodeCache({ stdTTL: 1800 });
-
-cache.on('expired', (key, { requestId }: CacheItem) => {
-    cleanupAfterRequest(requestId);
-});
-
-const setReqState = (requestId: string, progress: number) =>
-    cache.set<CacheItem>(requestId, {
-        requestId,
-        progress,
-        timestamp: Date.now(),
-    });
-
 const getReqState = (requestId: string) => cache.get<CacheItem>(requestId);
 
 // The XP service has a max hit-count per request, in order to prevent timeouts.
