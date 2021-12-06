@@ -12,7 +12,7 @@ type CacheItem = {
     query?: string;
 };
 
-const ttlSec = 120;
+const ttlSec = 3600;
 
 const cache = new NodeCache({ stdTTL: ttlSec, checkperiod: 60 });
 
