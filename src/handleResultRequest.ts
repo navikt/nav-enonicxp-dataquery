@@ -26,9 +26,9 @@ const resultsHtml = () => {
                     <p>Branch: ${branch} - Query: ${query || 'none'}</p>
                     <p>${
                         isDone
-                            ? `Query is finished - <a href="${resultApiPath}/${requestId}">Download result</a> - Expires in ${
+                            ? `Query is finished - <a href="${resultApiPath}/${requestId}">Download result</a> - Expires in ${Math.floor(
                                   (expires - Date.now()) / 1000
-                              } seconds`
+                              )} seconds`
                             : `Query is processing - current progress ${progress}%`
                     }</p>
                 </div>
