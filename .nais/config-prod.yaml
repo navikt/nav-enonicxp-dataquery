@@ -30,7 +30,8 @@ spec:
     max: 1
   resources:
     limits:
-      cpu: '2'
-      memory: 2000Mi
+      cpu: '4'
+      memory: 3000Mi
     requests:
+      cpu: '2'
       memory: 2000Mi

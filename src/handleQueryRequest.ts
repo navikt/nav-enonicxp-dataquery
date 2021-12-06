@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 import { fetchQueryAndSaveResponse } from './processQuery';
 import { cleanupAfterRequest } from './writeFiles';
 
-const maxReqs = 10;
+const maxReqs = 5;
 
 let currentReqs = 0;
 
