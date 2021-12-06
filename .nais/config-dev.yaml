@@ -19,7 +19,7 @@ spec:
     path: /internal/isReady
     initialDelay: 10
   ingresses:
-    - {{APP_ORIGIN}}
+    - https://nav-enonicxp-dataquery.dev.intern.nav.no
   env:
   {{#each env}}
     - name: {{this.name}}
