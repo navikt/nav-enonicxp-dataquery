@@ -32,6 +32,7 @@ export const getAllRequestStates = () =>
 export const addRequest = (
     requestId: string,
     branch: Branch,
+    query: string,
     progress: number
 ) =>
     setRequestState(requestId, {
@@ -40,6 +41,7 @@ export const addRequest = (
         isDone: false,
         requestId,
         branch,
+        query,
         expires: 0,
     });
 
