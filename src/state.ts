@@ -29,19 +29,14 @@ export const getRequestState = (requestId: string) =>
 export const getAllRequestStates = () =>
     cache.keys().map((key) => getRequestState(key));
 
-export const addRequest = (
-    requestId: string,
-    branch: Branch,
-    query: string,
-    progress: number
-) =>
+export const addRequest = (requestId: string, branch: Branch, query?: string) =>
     setRequestState(requestId, {
-        progress,
         filename: getResultFilename(requestId, branch),
         isDone: false,
         requestId,
         branch,
         query,
+        progress: 0,
         expires: 0,
     });
 

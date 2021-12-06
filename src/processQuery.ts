@@ -120,11 +120,11 @@ export const fetchQueryAndSaveResponse = async (
         }
     };
 
-    const { branch } = req.query as Params;
+    const { branch, query } = req.query as Params;
     const queryString = new URL(req.url, xpOrigin).search;
     const url = `${xpUrl}${queryString}&requestId=${requestId}`;
 
-    addRequest(requestId, branch, 0);
+    addRequest(requestId, branch, query);
 
     await runQuery()
         .then(() => zipQueryResult(requestId))
