@@ -36,10 +36,13 @@ export const handleQueryRequest = async (req: Request, res: Response) => {
     try {
         await fetchQueryAndSaveResponse(req, res, requestId);
     } catch (e) {
+        console.error(`Error on request ${requestId} - ${e}`);
         cleanupAfterRequest(requestId);
-        return res
-            .status(500)
-            .send(`Server error on request ${requestId} - ${e}`);
+        if (!res.headersSent) {
+            return res
+                .status(500)
+                .send(`Server error on request ${requestId} - ${e}`);
+        }
     } finally {
         currentReqs--;
         const timeSpentSec = (Date.now() - startTime) / 1000;
