@@ -65,7 +65,7 @@ https://nav-enonicxp-dataquery.intern.nav.no/query?branch=unpublished&types=["no
 }
 ```
 
-requestUrl vil servere en zip-fil med resultatet når det er klart. Ellers retureres denne responsen:
+requestUrl vil servere en zip-fil med resultatet når det er klart. Ellers returneres denne responsen:
 
 ```
 {
@@ -75,5 +75,5 @@ requestUrl vil servere en zip-fil med resultatet når det er klart. Ellers retur
 ```
 
 Oversikt over alle tilgjengelige resultater finnes her:\
-[https://nav-enonicxp-dataquery.intern.nav.no/result](https://nav-enonicxp-dataquery.intern.nav.no/query) (prod)\
-[https://nav-enonicxp-dataquery.dev.intern.nav.no/result](https://nav-enonicxp-dataquery.dev.intern.nav.no/query) (dev)
+[https://nav-enonicxp-dataquery.intern.nav.no/result](https://nav-enonicxp-dataquery.intern.nav.no/result) (prod)\
+[https://nav-enonicxp-dataquery.dev.intern.nav.no/result](https://nav-enonicxp-dataquery.dev.intern.nav.no/result) (dev)
