@@ -56,4 +56,24 @@ https://nav-enonicxp-dataquery.intern.nav.no/query?branch=unpublished&types=["no
 
 ## Response
 
-Returnerer en zip-fil med json-filer for funnet innhold
+```
+{
+    "message": "Processing query - total hit count <hits>",
+    "hits": <antall forventede treff>,
+    "requestId": <unik id for requesten>,
+    "resultUrl": "https://nav-enonicxp-dataquery.intern.nav.no/result/<requestId>"
+}
+```
+
+requestUrl vil servere en zip-fil med resultatet når det er klart. Ellers retureres denne responsen:
+
+```
+{
+    "message": "Result is not ready - Query progress: <progress>",
+    "progress": <0-100>
+}
+```
+
+Oversikt over alle tilgjengelige resultater finnes her:\
+[https://nav-enonicxp-dataquery.intern.nav.no/result](https://nav-enonicxp-dataquery.intern.nav.no/query) (prod)\
+[https://nav-enonicxp-dataquery.dev.intern.nav.no/result](https://nav-enonicxp-dataquery.dev.intern.nav.no/query) (dev)
