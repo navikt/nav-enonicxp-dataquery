@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { ErrorRequestHandler } from 'express';
 import { handleQueryRequest } from './handleQueryRequest';
 import { handleResultRequest, resultApiPath } from './handleResultRequest';
 
@@ -16,6 +16,18 @@ app.get('/internal/isAlive', (req, res) => {
 app.get('/internal/isReady', (req, res) => {
     return res.status(200).send('I am ready!');
 });
+
+const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+    const { path } = req;
+    const { status, stack } = err;
+    const msg = stack?.split('\n')[0];
+
+    console.error(`Express error on path ${path}: ${status} ${msg}`);
+
+    return res.status(status).send(msg);
+};
+
+app.use(errorHandler);
 
 const server = app.listen(appPort, () => {
     console.log(`Server starting on port ${appPort}`);
