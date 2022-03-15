@@ -2,7 +2,7 @@ name: Build and deploy
 on:
   workflow_dispatch:
     inputs:
-      env:
+      environment:
         type: choice
         required: true
         description: 'Deploy to environment'
@@ -15,9 +15,9 @@ jobs:
   build-and-deploy:
     name: Build docker image and deploy to nais k8s
     runs-on: ubuntu-latest
-    environment: ${{ inputs.env }}
+    environment: ${{ github.event.inputs.environment }}
     env:
-      image: ghcr.io/${{ github.repository }}:deploy-${{ inputs.env }}-${{ github.sha }}
+      image: ghcr.io/${{ github.repository }}:deploy-${{ github.event.inputs.environment }}-${{ github.sha }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -40,8 +40,8 @@ jobs:
           docker push ${{ env.image }}
       - uses: nais/deploy/actions/deploy@master
         env:
-          CLUSTER: ${{ inputs.env }}-gcp
+          CLUSTER: ${{ github.event.inputs.environment }}-gcp
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           RESOURCE: .nais/config.yml
           VAR: image=${{ env.image }}
-          VARS: .nais/vars-${{ inputs.env }}.yml
+          VARS: .nais/vars-${{ github.event.inputs.environment }}.yml
