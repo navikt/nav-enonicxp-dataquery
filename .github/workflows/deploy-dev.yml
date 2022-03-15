@@ -6,6 +6,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: dev-gcp:personbruker
+    env:
+      image: ghcr.io/${{ github.repository }}:${{ inputs.imagename }}-${{ github.sha }}
     steps:
       - uses: actions/checkout@v1
       - name: Define build environment
@@ -36,9 +38,8 @@ jobs:
           namespace: personbruker
           image: $IMAGE_REGISTRY/$IMAGE_NAME
           version: $IMAGE_VERSION
+          ingress: https://nav-enonicxp-dataquery.dev.intern.nav.no
           env:
-            - name: XP_SERVICE_SECRET
-              value: ${{ secrets.XP_SERVICE_SECRET }}
             - name: XP_ORIGIN
               value: https://www.dev.nav.no
             - name: TMP_DIR

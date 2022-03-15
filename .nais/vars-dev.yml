@@ -1,0 +1,7 @@
+ingress: https://nav-enonicxp-dataquery.dev.intern.nav.no
+secret: nav-enonicxp-dev1
+env:
+  - name: XP_ORIGIN
+    value: https://www.dev.nav.no
+  - name: APP_ORIGIN
+    value: https://nav-enonicxp-dataquery.dev.intern.nav.no

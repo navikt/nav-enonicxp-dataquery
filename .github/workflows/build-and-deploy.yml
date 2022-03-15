@@ -1,0 +1,47 @@
+name: Build and deploy
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        type: choice
+        required: true
+        description: 'Deploy to environment'
+        default: 'dev'
+        options:
+          - dev
+          - prod
+
+jobs:
+  build-and-deploy:
+    name: Build docker image and deploy to nais k8s
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.env }}
+    env:
+      image: ghcr.io/${{ github.repository }}:deploy-${{ inputs.env }}-${{ github.sha }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Setup node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Login to Docker registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push docker image
+        run: |
+          docker build -t ${{ env.image }} .
+          docker push ${{ env.image }}
+      - uses: nais/deploy/actions/deploy@master
+        env:
+          CLUSTER: ${{ inputs.env }}-gcp
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          RESOURCE: .nais/config.yml
+          VAR: image=${{ env.image }}
+          VARS: .nais/vars-${{ inputs.env }}.yml
