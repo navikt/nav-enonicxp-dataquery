@@ -33,8 +33,6 @@ export const fetchQueryAndSaveResponse = async (
             },
         });
 
-        console.log(batchResponse.headers)
-
         const isJson = batchResponse.headers
             ?.get('content-type')
             ?.includes?.('application/json');
