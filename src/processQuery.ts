@@ -5,7 +5,7 @@ import { Request, Response } from 'express';
 import { addRequest, markRequestDone, updateRequestProgress } from './state';
 import { getResultUrl } from './handleResultRequest';
 
-const serviceSecret = process.env.XP_SERVICE_SECRET || 'dummyToken';
+const serviceSecret = process.env.SERVICE_SECRET || 'dummyToken';
 
 const localXpOrigin = 'http://localhost:8080';
 
@@ -32,6 +32,8 @@ export const fetchQueryAndSaveResponse = async (
                 ...(stickyCookie && { cookie: stickyCookie }),
             },
         });
+
+        console.log(batchResponse.headers)
 
         const isJson = batchResponse.headers
             ?.get('content-type')
