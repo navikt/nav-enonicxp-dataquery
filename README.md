@@ -20,7 +20,7 @@ branch er påkrevd, resten er optional
 
 | Parameter          | Gyldige verdier
 | ------------------ | -----------------------------------------------------
-| branch             | published, unpublished
+| branch             | published, unpublished, archived
 | query              | NoQL query string ([se dokumentasjon](https://developer.enonic.com/docs/xp/stable/storage/noql#query)) - hvis tom hentes alt innhold fra valgt branch
 | types              | array av content-typer queryet skal kjøres mot - hvis tom benyttes default typer [1]
 

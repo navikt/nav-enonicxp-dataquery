@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Params } from './types';
+import { Branch, Params } from './types';
 import { v4 as uuid } from 'uuid';
 import { fetchQueryAndSaveResponse } from './processQuery';
 import { cleanupAfterRequest } from './writeFiles';
@@ -7,6 +7,12 @@ import { cleanupAfterRequest } from './writeFiles';
 const maxReqs = 3;
 
 let currentReqs = 0;
+
+const validBranches: {[key in Branch]: true} = {
+    'archived': true,
+    'published': true,
+    'unpublished': true
+}
 
 export const handleQueryRequest = async (req: Request, res: Response) => {
     if (currentReqs >= maxReqs) {
@@ -17,11 +23,11 @@ export const handleQueryRequest = async (req: Request, res: Response) => {
 
     const { branch, query } = req.query as Params;
 
-    if (branch !== 'published' && branch !== 'unpublished') {
+    if (!validBranches[branch]) {
         return res
             .status(400)
             .send(
-                'Parameter "branch" must be either "published" or "unpublished"'
+                `Parameter "branch" must be one of ${Object.keys(validBranches).join(', ')}`
             );
     }
 

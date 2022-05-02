@@ -1,4 +1,4 @@
-export type Branch = 'published' | 'unpublished' | 'all';
+export type Branch = 'published' | 'unpublished' | 'archived';
 
 export type Params = {
     branch: Branch;
