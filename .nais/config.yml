@@ -21,6 +21,8 @@ spec:
   ingresses:
     - {{ingress}}
   env:
+    - name: NPM_CONFIG_CACHE
+      value: /tmp/npm-cache
     - name: TMP_DIR
       value: /tmp
   {{#each env}}

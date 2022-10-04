@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import { saveHitsToJsonFiles, saveSummary, zipQueryResult } from './writeFiles';
 import { Params, XpServiceResponse } from './types';
 import { Request, Response } from 'express';
