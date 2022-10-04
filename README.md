@@ -24,23 +24,7 @@ branch er påkrevd, resten er optional
 | query              | NoQL query string ([se dokumentasjon](https://developer.enonic.com/docs/xp/stable/storage/noql#query)) - hvis tom hentes alt innhold fra valgt branch
 | types              | array av content-typer queryet skal kjøres mot - hvis tom benyttes default typer [1]
 
-[1] Default content-typer:
-```
-'no.nav.navno:situation-page'
-'no.nav.navno:dynamic-page'
-'no.nav.navno:content-page-with-sidemenus'
-'no.nav.navno:main-article'
-'no.nav.navno:section-page'
-'no.nav.navno:page-list'
-'no.nav.navno:transport-page'
-'no.nav.navno:office-information'
-'no.nav.navno:publishing-calendar'
-'no.nav.navno:large-table'
-'media:text'
-'media:document'
-'media:spreadsheet'
-'media:presentation'
-```
+[1] https://github.com/navikt/nav-enonicxp/blob/master/src/main/resources/lib/contenttype-lists.ts#L52
 
 ### Eksempler
 Returnerer ALT publisert innhold:
