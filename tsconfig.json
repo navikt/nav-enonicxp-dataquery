@@ -1,22 +1,22 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "allowJs": true,
+    "allowJs": false,
     "baseUrl": "src",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "lib": [
-      "esnext",
+      "es2021",
       "dom"
     ],
     "moduleResolution": "node",
-    "module": "esnext",
+    "module": "CommonJS",
     "outDir": "./dist",
     "strict": true,
-    "target": "es2017"
+    "target": "es2021"
   },
   "include": [
-    "**/*.js",
-    "**/*.ts",
+    "**/*.ts"
   ]
 }
