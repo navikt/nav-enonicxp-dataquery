@@ -6,8 +6,6 @@ metadata:
   namespace: personbruker
   labels:
     team: personbruker
-  annotations:
-    nais.io/read-only-file-system: "false"
 spec:
   image: {{image}}
   team: personbruker
