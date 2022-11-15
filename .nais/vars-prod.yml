@@ -5,3 +5,10 @@ env:
     value: https://www.nav.no
   - name: APP_ORIGIN
     value: https://nav-enonicxp-dataquery.intern.nav.no
+resources:
+  limits:
+    cpu: 3000m
+    memory: 3000Mi
+  requests:
+    cpu: 1000m
+    memory: 1000Mi
