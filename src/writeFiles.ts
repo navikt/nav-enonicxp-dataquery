@@ -24,15 +24,27 @@ export const getResultFilename = (requestId: string, branch: Branch) => {
     );
 };
 
+const getHitPath = (hit: XpContent) => {
+    if (hit.layerLocale === 'no') {
+        return hit._path;
+    }
+
+    return `${hit._path}_layer-${hit.layerLocale}`
+}
+
 export const saveHitsToJsonFiles = (hits: XpContent[], requestId: string) => {
+    const requestJsonPath = getRequestJsonPath(requestId);
+
     hits.forEach((hit) => {
         const data = objectToJson(hit);
 
-        const hitPath = path.join(getRequestJsonPath(requestId), hit._path);
-        const parentPath = path.dirname(hitPath);
+        const hitPath = getHitPath(hit)
+
+        const hitPathFull = path.join(requestJsonPath, hitPath);
+        const parentPath = path.dirname(hitPathFull);
 
         fs.mkdirSync(parentPath, { recursive: true });
-        fs.writeFileSync(`${hitPath}.json`, data);
+        fs.writeFileSync(`${hitPathFull}.json`, data);
     });
 };
 

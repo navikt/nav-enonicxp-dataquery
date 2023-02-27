@@ -10,6 +10,7 @@ export type Params = {
 export type XpContent = {
     _id: string;
     _path: string;
+    layerLocale: string;
 };
 
 export type XpServiceResponse = Params & {

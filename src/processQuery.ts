@@ -61,7 +61,7 @@ export const fetchQueryAndSaveResponse = async (
 
         // consistency check for batched requests
         const uniqueHits = hits.filter((hit) => {
-            const id = hit._id;
+            const id = `${hit._id}-${hit.layerLocale}`;
 
             if (!id) {
                 console.error(
