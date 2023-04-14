@@ -9,7 +9,7 @@ Henter data fra www.nav.no:
 
 #### Ingress for dev-data
 Henter data fra www.dev.nav.no:  
-[https://nav-enonicxp-dataquery.dev.intern.nav.no/query](https://nav-enonicxp-dataquery.dev.intern.nav.no/query)  
+[https://nav-enonicxp-dataquery.intern.dev.nav.no/query](https://nav-enonicxp-dataquery.intern.dev.nav.no/query)  
 [[Logger](https://logs.adeo.no/goto/7fe57e567121032648513ec3ea6ad585)]
 
 ## Request
@@ -59,4 +59,4 @@ requestUrl vil servere en zip-fil med resultatet når det er klart. Ellers retur
 
 Oversikt over alle tilgjengelige resultater finnes her:\
 [https://nav-enonicxp-dataquery.intern.nav.no/result](https://nav-enonicxp-dataquery.intern.nav.no/result) (prod)\
-[https://nav-enonicxp-dataquery.dev.intern.nav.no/result](https://nav-enonicxp-dataquery.dev.intern.nav.no/result) (dev)
+[https://nav-enonicxp-dataquery.intern.dev.nav.no/result](https://nav-enonicxp-dataquery.intern.dev.nav.no/result) (dev)

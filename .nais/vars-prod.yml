@@ -1,13 +1,9 @@
 ingress: https://nav-enonicxp-dataquery.intern.nav.no
 secret: nav-enonicxp
-env:
-  - name: XP_ORIGIN
-    value: https://www.nav.no
-  - name: APP_ORIGIN
-    value: https://nav-enonicxp-dataquery.intern.nav.no
+xpHost: www.nav.no
+APP_ORIGIN: https://nav-enonicxp-dataquery.intern.nav.no
 resources:
   limits:
-    cpu: 3000m
     memory: 3000Mi
   requests:
     cpu: 200m
