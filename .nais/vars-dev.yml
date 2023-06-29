@@ -1,6 +1,6 @@
 ingress: https://nav-enonicxp-dataquery.intern.dev.nav.no
 secret: nav-enonicxp-dev1
-xpHost: www.dev.nav.no
+xpHost: portal-admin-dev.oera.no
 APP_ORIGIN: https://nav-enonicxp-dataquery.intern.dev.nav.no
 resources:
   limits:

@@ -8,7 +8,7 @@ Henter data fra www.nav.no:
 [[Logger](https://logs.adeo.no/goto/32b96e48bef962beda8465a62bc5b8bc)]
 
 #### Ingress for dev-data
-Henter data fra www.dev.nav.no:  
+Henter data fra portal-admin-dev.oera.no:  
 [https://nav-enonicxp-dataquery.intern.dev.nav.no/query](https://nav-enonicxp-dataquery.intern.dev.nav.no/query)  
 [[Logger](https://logs.adeo.no/goto/7fe57e567121032648513ec3ea6ad585)]
 
