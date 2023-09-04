@@ -13,11 +13,9 @@ on:
 
 jobs:
   build-and-deploy:
-    name: Build docker image and deploy to nais k8s (${{ github.event.inputs.environment }})
+    name: Build and deploy to (${{ github.event.inputs.environment }})
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment }}
-    env:
-      image: ghcr.io/${{ github.repository }}:deploy-${{ github.event.inputs.environment }}-${{ github.sha }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -30,20 +28,18 @@ jobs:
         run: npm ci
       - name: Build application
         run: npm run build
-      - name: Login to Docker registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push docker image
-        run: |
-          docker build -t ${{ env.image }} .
-          docker push ${{ env.image }}
+        uses: nais/docker-build-push@v0
+        id: docker-push
+        with:
+          team: personbruker
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          image_suffix: ${{ github.event.inputs.environment }}
       - uses: nais/deploy/actions/deploy@master
         env:
           CLUSTER: ${{ github.event.inputs.environment }}-gcp
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           RESOURCE: .nais/config.yml
-          VAR: image=${{ env.image }}
+          VAR: image=${{ steps.docker-push.outputs.image }}
           VARS: .nais/vars-${{ github.event.inputs.environment }}.yml
