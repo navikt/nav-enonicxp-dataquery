@@ -24,7 +24,7 @@ branch er påkrevd, resten er optional
 | query              | NoQL query string ([se dokumentasjon](https://developer.enonic.com/docs/xp/stable/storage/noql#query)) - hvis tom hentes alt innhold fra valgt branch
 | types              | array av content-typer queryet skal kjøres mot - hvis tom benyttes default typer [1]
 
-[1] https://github.com/navikt/nav-enonicxp/blob/master/src/main/resources/lib/contenttype-lists.ts#L52
+[1] https://github.com/navikt/nav-enonicxp/blob/main/src/main/resources/lib/contenttype-lists.ts#L52
 
 ### Eksempler
 Returnerer ALT publisert innhold:
