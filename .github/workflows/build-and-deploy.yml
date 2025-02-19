@@ -1,15 +1,9 @@
 name: Build and deploy
 on:
-    workflow_dispatch:
-        inputs:
-            environment:
-                type: choice
-                required: true
-                description: 'Deploy to environment'
-                default: 'dev'
-                options:
-                    - dev
-                    - prod
+  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
     build_image:
@@ -39,13 +33,6 @@ jobs:
                   project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
                   identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
                   image_suffix: ${{ github.event.inputs.environment }}
-    #            - uses: nais/deploy/actions/deploy@v2
-    #              env:
-    #                  CLUSTER: ${{ github.event.inputs.environment }}-gcp
-    #                  RESOURCE: .nais/config.yml
-    #                  VAR: image=${{ steps.docker-push.outputs.image }}
-    #                  VARS: .nais/vars-${{ github.event.inputs.environment }}.yml
-
     deploy_dev:
         name: Deploy to dev
         runs-on: ubuntu-latest
@@ -63,7 +50,6 @@ jobs:
                   RESOURCE: .nais/config.yml
                   VAR: image=${{ needs.build_image.outputs.image }}
                   VARS: .nais/vars-dev.yml
-
     deploy_prod:
         name: Deploy to prod
         runs-on: ubuntu-latest
