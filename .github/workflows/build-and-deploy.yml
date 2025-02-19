@@ -1,18 +1,18 @@
 name: Build and deploy
 on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-
+    workflow_dispatch:
+    push:
+        branches:
+            - main
 jobs:
     build_image:
         name: Build docker image
         runs-on: ubuntu-latest
-        environment: ${{ github.event.inputs.environment }}
         permissions:
             contents: read
             id-token: write
+        outputs:
+            image: ${{ steps.docker-push.outputs.image }}
         steps:
             - name: Checkout repo
               uses: actions/checkout@v4
@@ -32,7 +32,6 @@ jobs:
                   team: personbruker
                   project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
                   identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-                  image_suffix: ${{ github.event.inputs.environment }}
     deploy_dev:
         name: Deploy to dev
         runs-on: ubuntu-latest
