@@ -60,3 +60,7 @@ requestUrl vil servere en zip-fil med resultatet når det er klart. Ellers retur
 Oversikt over alle tilgjengelige resultater finnes her:\
 [https://nav-enonicxp-dataquery.intern.nav.no/result](https://nav-enonicxp-dataquery.intern.nav.no/result) (prod)\
 [https://nav-enonicxp-dataquery.intern.dev.nav.no/result](https://nav-enonicxp-dataquery.intern.dev.nav.no/result) (dev)
+
+
+## Prodsetting
+Lag en PR til main, og merge inn etter godkjenning (En automatisk release vil oppstå ved deploy til main)
