@@ -15,7 +15,7 @@ jobs:
             image: ${{ steps.docker-push.outputs.image }}
         steps:
             - name: Checkout repo
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
             - name: Setup node.js
               uses: actions/setup-node@v4
               with:
@@ -43,7 +43,7 @@ jobs:
             id-token: write
         steps:
             - name: Checkout repo
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
             - name: Deploy to nais
               uses: nais/deploy/actions/deploy@v2
               env:
@@ -60,7 +60,7 @@ jobs:
             id-token: write
         steps:
             - name: Checkout repo
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
             - name: Deploy to nais
               uses: nais/deploy/actions/deploy@v2
               env:
