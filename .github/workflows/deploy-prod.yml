@@ -16,12 +16,13 @@ jobs:
         uses: actions/checkout@v6
 
       - uses: ./.github/actions/build-and-deploy
+        id: build
 
       - name: Deploy to nais
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: prod-gcp
-          VAR: image=${{ needs.build_image.outputs.image }}
+          VAR: image=${{ steps.build.outputs.image }}
           VARS: .nais/vars-prod.yml
           RESOURCE: .nais/config.yml
 
