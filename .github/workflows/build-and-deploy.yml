@@ -1,87 +1,91 @@
 name: Build and deploy
 on:
-    workflow_dispatch:
-    push:
-        branches:
-            - main
+  workflow_dispatch:
+  push:
+    branches:
+      - main
 jobs:
-    build_image:
-        name: Build docker image
-        runs-on: ubuntu-latest
-        permissions:
-            contents: read
-            id-token: write
-        outputs:
-            image: ${{ steps.docker-push.outputs.image }}
-        steps:
-            - name: Checkout repo
-              uses: actions/checkout@v4
-            - name: Setup node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 20
-                  cache: 'npm'
-            - name: Install dependencies
-              run: npm ci
-            - name: Build application
-              run: npm run build
-            - name: Build and push docker image
-              uses: nais/docker-build-push@v0
-              id: docker-push
-              with:
-                  team: personbruker
-                  project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-                  identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-    deploy_dev:
-        name: Deploy to dev
-        runs-on: ubuntu-latest
-        needs: build_image
-        permissions:
-            contents: read
-            id-token: write
-        steps:
-            - name: Checkout repo
-              uses: actions/checkout@v4
-            - name: Deploy to nais
-              uses: nais/deploy/actions/deploy@v2
-              env:
-                  CLUSTER: dev-gcp
-                  RESOURCE: .nais/config.yml
-                  VAR: image=${{ needs.build_image.outputs.image }}
-                  VARS: .nais/vars-dev.yml
-    deploy_prod:
-        name: Deploy to prod
-        runs-on: ubuntu-latest
-        needs: build_image
-        permissions:
-            contents: read
-            id-token: write
-        steps:
-            - name: Checkout repo
-              uses: actions/checkout@v4
-            - name: Deploy to nais
-              uses: nais/deploy/actions/deploy@v2
-              env:
-                  CLUSTER: prod-gcp
-                  VAR: image=${{ needs.build_image.outputs.image }}
-                  VARS: .nais/vars-prod.yml
-                  RESOURCE: .nais/config.yml
-    release:
-        name: Create a new release
-        needs: deploy_prod
-        runs-on: ubuntu-latest
-        permissions:
-            contents: write
-            id-token: write
-        steps:
-            - name: Generate unique tag name
-              run: echo "TAG_NAME=$(date +%s)" >> $GITHUB_ENV
-            - name: Create GitHub Release
-              uses: softprops/action-gh-release@v2
-              with:
-                  target_commitish: main
-                  tag_name: release/prod@${{ env.TAG_NAME }} # Generates a unique tag using timestamp
-                  name: Release ${{ github.ref_name }}
-                  generate_release_notes: true
-              env:
-                  GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }} # This is a PAT with repo permissions
+  build_image:
+    name: Build docker image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      image: ${{ steps.docker-push.outputs.image }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Setup node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build application
+        run: npm run build
+      - name: Build and push docker image
+        uses: nais/docker-build-push@v0
+        id: docker-push
+        with:
+          team: personbruker
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+      - name: Login to nais registry
+        uses: nais/login@v0
+        with:
+          team: navno
+  deploy_dev:
+    name: Deploy to dev
+    runs-on: ubuntu-latest
+    needs: build_image
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Deploy to nais
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: .nais/config.yml
+          VAR: image=${{ needs.build_image.outputs.image }}
+          VARS: .nais/vars-dev.yml
+  deploy_prod:
+    name: Deploy to prod
+    runs-on: ubuntu-latest
+    needs: build_image
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Deploy to nais
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: prod-gcp
+          VAR: image=${{ needs.build_image.outputs.image }}
+          VARS: .nais/vars-prod.yml
+          RESOURCE: .nais/config.yml
+  release:
+    name: Create a new release
+    needs: deploy_prod
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Generate unique tag name
+        run: echo "TAG_NAME=$(date +%s)" >> $GITHUB_ENV
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          target_commitish: main
+          tag_name: release/prod@${{ env.TAG_NAME }} # Generates a unique tag using timestamp
+          name: Release ${{ github.ref_name }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }} # This is a PAT with repo permissions
