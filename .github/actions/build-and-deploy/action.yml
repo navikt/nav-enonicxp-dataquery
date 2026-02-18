@@ -1,0 +1,40 @@
+name: Build and push image
+description: Build app and push Docker image to NAIS
+
+outputs:
+  image:
+    description: Built image reference
+    value: ${{ steps.docker-push.outputs.image }}
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout repo
+      uses: actions/checkout@v6
+
+    - name: Setup node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 24
+        cache: "npm"
+
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
+
+    - name: Build application
+      shell: bash
+      run: npm run build
+
+    - name: Build and push Docker image
+      id: docker-push
+      uses: nais/docker-build-push@v0
+      with:
+        team: personbruker
+        project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+        identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+
+    - name: Login to nais registry
+      uses: nais/login@v0
+      with:
+        team: navno
