@@ -3,9 +3,9 @@ apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
   name: nav-enonicxp-dataquery
-  namespace: personbruker
+  namespace: navno
   labels:
-    team: personbruker
+    team: navno
 spec:
   image: {{image}}
   port: 2999
