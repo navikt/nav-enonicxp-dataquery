@@ -5,7 +5,7 @@ ENV NPM_CONFIG_CACHE=/tmp
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package*.json .env ./
 COPY node_modules ./node_modules
 COPY dist ./dist/
 

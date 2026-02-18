@@ -18,6 +18,11 @@ runs:
         node-version: 24
         cache: "npm"
 
+    - name: Login to nais registry
+      uses: nais/login@v0
+      with:
+        team: navno
+
     - name: Install dependencies
       shell: bash
       run: npm ci
@@ -30,11 +35,6 @@ runs:
       id: docker-push
       uses: nais/docker-build-push@v0
       with:
-        team: personbruker
+        team: navno
         project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
         identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-
-    - name: Login to nais registry
-      uses: nais/login@v0
-      with:
-        team: navno
