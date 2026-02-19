@@ -20,9 +20,6 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Checkout repo
-      uses: actions/checkout@v6
-
     - name: Login to nais registry
       uses: nais/login@v0
       with:

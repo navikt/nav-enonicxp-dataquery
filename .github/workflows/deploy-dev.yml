@@ -11,6 +11,9 @@ jobs:
     outputs:
       image: ${{ steps.build.outputs.image }}
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
       - id: build
         uses: ./.github/actions/build-and-push
         with:
@@ -25,9 +28,13 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
       - run: echo "IMAGE=${{ needs.build.outputs.image }}"
-      - uses: nais/deploy/actions/deploy@v2
+
+      - name: Deploy to dev
+        uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
           RESOURCE: .nais/config.yml
