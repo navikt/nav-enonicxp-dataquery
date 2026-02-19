@@ -26,7 +26,7 @@ runs:
     - name: Login to nais registry
       uses: nais/login@v0
       with:
-        team: navno
+        team: ${{ inputs.team }}
 
     - name: Setup node.js
       uses: actions/setup-node@v6
