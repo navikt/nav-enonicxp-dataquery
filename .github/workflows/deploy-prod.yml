@@ -6,6 +6,21 @@ on:
       - main
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      image: ${{ steps.build.outputs.image }}
+    steps:
+      - id: build
+        uses: ./.github/actions/build-and-push
+        with:
+          team: navno
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+
   deploy_prod:
     runs-on: ubuntu-latest
     permissions:
@@ -14,8 +29,6 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
-
-      - uses: ./.github/actions/build-and-deploy
 
       - name: Deploy to nais
         uses: nais/deploy/actions/deploy@v2
