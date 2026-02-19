@@ -12,7 +12,13 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v6
 
-      - uses: ./.github/actions/build-and-deploy
+      - name: Build and push image
+        id: build
+        uses: ./.github/actions/build-and-deploy
+        with:
+          team: navno
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
 
       - name: Deploy to nais
         uses: nais/deploy/actions/deploy@v2
