@@ -1,11 +1,14 @@
-FROM node:24-alpine
+FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/node:24-slim
+
+ENV NODE_ENV=production
+ENV NPM_CONFIG_CACHE=/tmp/npm-cache
 
 WORKDIR /app
 
-COPY package*.json /app/
-COPY node_modules /app/node_modules/
-COPY dist /app/dist/
+COPY package*.json ./
+COPY node_modules ./node_modules
+COPY dist ./dist
 
-# Start app
 EXPOSE 2999
-CMD ["npm", "run", "start"]
+ENTRYPOINT ["node"]
+CMD ["dist/server.js"]
