@@ -22,23 +22,30 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+
     - name: Setup node.js
       uses: actions/setup-node@v6
       with:
         node-version: 24
-        cache: npm
+        cache: pnpm
 
     - name: Install dependencies
       shell: bash
-      run: npm ci --ignore-scripts
+      run: pnpm install --frozen-lockfile
 
     - name: Build application
       shell: bash
-      run: npm run build
+      run: pnpm run build
 
-    - name: Prune dependencies
+    - name: Delete node_modules to avoid copying them into the docker image
       shell: bash
-      run: npm prune --omit=dev
+      run: rm -rf node_modules
+
+    - name: Install production dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile --prod
 
     - name: Build and push Docker image
       id: docker-push
