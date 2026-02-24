@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -17,34 +17,18 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v6
 
-      - id: build
+      - name: Build and deploy prod
+        id: build
         uses: ./.github/actions/build-and-push
         with:
           team: navno
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-
-  deploy_prod:
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v6
-
-      - name: Deploy to nais
-        uses: nais/deploy/actions/deploy@v2
-        env:
-          CLUSTER: prod-gcp
-          VAR: image=${{ needs.build.outputs.image }}
-          VARS: .nais/vars-prod.yml
-          RESOURCE: .nais/config.yml
+          environment: prod
 
   release:
     name: Create a new release
-    needs: deploy_prod
+    needs: build-and-deploy
     runs-on: ubuntu-latest
     permissions:
       contents: write

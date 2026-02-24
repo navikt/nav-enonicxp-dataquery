@@ -1,5 +1,4 @@
-name: Build and push image
-description: Build app and push Docker image to NAIS
+name: Build and deploy
 
 inputs:
   team:
@@ -11,6 +10,9 @@ inputs:
   identity_provider:
     description: NAIS workload identity provider
     required: true
+  environment:
+    required: true
+    description: Environment name
 
 outputs:
   image:
@@ -20,11 +22,6 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Login to nais registry
-      uses: nais/login@v0
-      with:
-        team: ${{ inputs.team }}
-
     - name: Setup node.js
       uses: actions/setup-node@v6
       with:
@@ -50,3 +47,11 @@ runs:
         team: ${{ inputs.team }}
         project_id: ${{ inputs.project_id }}
         identity_provider: ${{ inputs.identity_provider }}
+
+    - name: Deploy to nais
+      uses: nais/deploy/actions/deploy@v2
+      env:
+        CLUSTER: ${{ inputs.environment }}-gcp
+        RESOURCE: .nais/config.yml
+        VAR: image=${{ needs.build.outputs.image }}
+        VARS: .nais/vars-dev.yml
