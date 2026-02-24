@@ -19,7 +19,7 @@ jobs:
 
       - name: Build and deploy prod
         id: build
-        uses: ./.github/actions/build-and-push
+        uses: ./.github/actions/build-and-deploy
         with:
           team: navno
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
