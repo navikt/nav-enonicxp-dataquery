@@ -15,6 +15,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Build and deploy dev
+        id: build
         uses: ./.github/actions/build-and-deploy
         with:
           team: navno

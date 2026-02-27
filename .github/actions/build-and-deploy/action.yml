@@ -61,4 +61,4 @@ runs:
         CLUSTER: ${{ inputs.environment }}-gcp
         RESOURCE: .nais/config.yml
         VAR: image=${{ steps.docker-push.outputs.image }}
-        VARS: .nais/vars-dev.yml
+        VARS: .nais/vars-${{ inputs.environment }}.yml
