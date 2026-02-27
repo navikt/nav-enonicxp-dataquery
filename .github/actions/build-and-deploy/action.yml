@@ -54,6 +54,12 @@ runs:
         team: ${{ inputs.team }}
         project_id: ${{ inputs.project_id }}
         identity_provider: ${{ inputs.identity_provider }}
+        salsa: "false"
+
+    - name: Attest and sign image (newer nais/attest-sign)
+      uses: nais/attest-sign@main
+      with:
+        image_ref: ${{ steps.docker-push.outputs.image }}@${{ steps.docker-push.outputs.digest }}
 
     - name: Deploy to nais
       uses: nais/deploy/actions/deploy@v2
