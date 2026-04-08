@@ -17,7 +17,7 @@ app.get('/internal/isReady', (req, res) => {
     return res.status(200).send('I am ready!');
 });
 
-const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+const errorHandler: ErrorRequestHandler = (err, req, res) => {
     const { path } = req;
     const { status, stack } = err;
     const msg = stack?.split('\n')[0];
