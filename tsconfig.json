@@ -12,7 +12,9 @@
     ],
     "moduleResolution": "node",
     "module": "CommonJS",
+    "rootDir": "./src",
     "outDir": "./dist",
+    "ignoreDeprecations": "6.0",
     "strict": true,
     "target": "es2021"
   },
