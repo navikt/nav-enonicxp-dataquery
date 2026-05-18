@@ -7,7 +7,7 @@ const appPort = 2999;
 
 app.get('/query', handleQueryRequest);
 
-app.get(`${resultApiPath}/:requestId?`, handleResultRequest);
+app.get(`${resultApiPath}/{:requestId}`, handleResultRequest);
 
 app.get('/internal/isAlive', (req, res) => {
     return res.status(200).send('I am alive!');
@@ -17,7 +17,7 @@ app.get('/internal/isReady', (req, res) => {
     return res.status(200).send('I am ready!');
 });
 
-const errorHandler: ErrorRequestHandler = (err, req, res) => {
+const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
     const { path } = req;
     const { status, stack } = err;
     const msg = stack?.split('\n')[0];
