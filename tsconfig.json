@@ -7,8 +7,7 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "lib": [
-      "es2021",
-      "dom"
+      "es2022"
     ],
     "moduleResolution": "node",
     "module": "CommonJS",
@@ -16,7 +15,7 @@
     "outDir": "./dist",
     "ignoreDeprecations": "6.0",
     "strict": true,
-    "target": "es2021"
+    "target": "es2022"
   },
   "include": [
     "**/*.ts"
