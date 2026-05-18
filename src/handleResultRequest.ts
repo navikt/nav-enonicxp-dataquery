@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import { getAllRequestStates, getRequestState } from './state';
 
+type ResultRequestParams = {
+    requestId?: string;
+};
+
 const appOrigin = process.env.APP_ORIGIN || 'http://localhost:2999';
 
 export const resultApiPath = '/result';
@@ -54,7 +58,10 @@ const resultsHtml = () => {
     `;
 };
 
-export const handleResultRequest = async (req: Request, res: Response) => {
+export const handleResultRequest = async (
+    req: Request<ResultRequestParams>,
+    res: Response
+) => {
     const { requestId } = req.params;
 
     if (!requestId) {

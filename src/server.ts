@@ -7,7 +7,7 @@ const appPort = 2999;
 
 app.get('/query', handleQueryRequest);
 
-app.get(`${resultApiPath}/:requestId?`, handleResultRequest);
+app.get(`${resultApiPath}/{:requestId}`, handleResultRequest);
 
 app.get('/internal/isAlive', (req, res) => {
     return res.status(200).send('I am alive!');
