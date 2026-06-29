@@ -39,6 +39,11 @@ spec:
     outbound:
       external:
         - host: {{xpHost}}
+  observability:
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
   replicas:
     min: 1
     max: 1

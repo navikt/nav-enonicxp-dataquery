@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import archiver from 'archiver';
+import { ZipArchive } from 'archiver';
 import { Branch, QuerySummary, XpContent } from './types';
 import { getRequestState } from './state';
+import { logger, stringifyError } from './logger';
 
 const localTmp = path.join(path.resolve(), 'tmp');
 const tmpDir = process.env.TMP_DIR || localTmp;
@@ -14,13 +15,22 @@ const getRequestJsonPath = (requestId: string) =>
 
 const objectToJson = (obj: object) => JSON.stringify(obj, null, 4);
 
-console.log(`Using temp dir: ${tmpDir}`);
+const sanitizeFilenameSegment = (value: string): string => {
+    const sanitized = value
+        .replace(/[^a-zA-Z0-9._-]/g, '_')
+        .replace(/^[-._]+|[-._]+$/g, '');
+
+    return sanitized || 'unknown';
+};
+
+logger.info({ tmpDir }, 'Using temp dir');
 
 export const getResultFilename = (requestId: string, branch: Branch) => {
     const dateTime = new Date().toISOString().replaceAll(':', '');
+    const safeBranch = sanitizeFilenameSegment(String(branch));
     return path.join(
-        getRequestBasePath(requestId),
-        `xp-data-query_${branch}_${dateTime}.zip`
+        tmpDir,
+        `${requestId}_xp-data-query_${safeBranch}_${dateTime}.zip`
     );
 };
 
@@ -29,8 +39,8 @@ const getHitPath = (hit: XpContent) => {
         return hit._path;
     }
 
-    return `${hit._path}_layer-${hit.layerLocale}`
-}
+    return `${hit._path}_layer-${hit.layerLocale}`;
+};
 
 export const saveHitsToJsonFiles = (hits: XpContent[], requestId: string) => {
     const requestJsonPath = getRequestJsonPath(requestId);
@@ -38,7 +48,7 @@ export const saveHitsToJsonFiles = (hits: XpContent[], requestId: string) => {
     hits.forEach((hit) => {
         const data = objectToJson(hit);
 
-        const hitPath = getHitPath(hit)
+        const hitPath = getHitPath(hit);
 
         const hitPathFull = path.join(requestJsonPath, hitPath);
         const parentPath = path.dirname(hitPathFull);
@@ -65,19 +75,28 @@ export const zipQueryResult = async (requestId: string): Promise<string> => {
         );
     }
 
+    fs.mkdirSync(path.dirname(fileName), { recursive: true });
+
     const output = fs.createWriteStream(fileName);
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = new ZipArchive({ zlib: { level: 9 } });
 
     return new Promise((res, rej) => {
         archive
             .directory(getRequestJsonPath(requestId), false)
             .on('error', (error) => rej(error))
-            .on('warning', (error) => console.error(error))
+            .on('warning', (error) =>
+                logger.warn(
+                    { requestId, error: stringifyError(error) },
+                    'Archiver warning'
+                )
+            )
             .pipe(output);
 
+        output.on('error', (error: unknown) => rej(error));
         output.on('close', () => {
-            console.log(
-                `Zipped ${archive.pointer()} bytes to file ${fileName}`
+            logger.info(
+                { requestId, fileName, bytes: archive.pointer() },
+                'Zipped query result'
             );
             res(fileName);
         });
@@ -87,9 +106,14 @@ export const zipQueryResult = async (requestId: string): Promise<string> => {
 };
 
 export const cleanupAfterRequest = (requestId: string) => {
-    console.log(`Cleaning up after ${requestId}`);
+    logger.info({ requestId }, 'Cleaning up after request');
     const requestTmpPath = path.join(tmpDir, requestId);
     if (fs.existsSync(requestTmpPath)) {
         fs.rmSync(requestTmpPath, { recursive: true });
+    }
+
+    const fileName = getRequestState(requestId)?.filename;
+    if (fileName && fs.existsSync(fileName)) {
+        fs.rmSync(fileName, { force: true });
     }
 };
