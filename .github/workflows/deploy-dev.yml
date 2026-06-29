@@ -12,7 +12,7 @@ jobs:
       image: ${{ steps.build.outputs.image }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Build and deploy dev
         id: build
