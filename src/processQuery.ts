@@ -3,6 +3,7 @@ import { Params, XpServiceResponse } from './types';
 import { Request, Response } from 'express';
 import { addRequest, markRequestDone, updateRequestProgress } from './state';
 import { getResultUrl } from './handleResultRequest';
+import { logger } from './logger';
 
 const serviceSecret = process.env.SERVICE_SECRET || 'dummyToken';
 
@@ -37,8 +38,13 @@ export const fetchQueryAndSaveResponse = async (
             ?.includes?.('application/json');
 
         if (!isJson) {
-            console.error(
-                `Invalid response from XP: ${JSON.stringify(batchResponse)}`
+            logger.error(
+                {
+                    requestId,
+                    status: batchResponse.status,
+                    contentType: batchResponse.headers.get('content-type'),
+                },
+                'Invalid response from XP - expected JSON'
             );
             throw new Error(
                 'Invalid response from XP - expected a JSON response'
@@ -64,13 +70,15 @@ export const fetchQueryAndSaveResponse = async (
             const id = `${hit._id}-${hit.layerLocale}`;
 
             if (!id) {
-                console.error(
-                    `Warning, missing id found in response for request id ${requestId} - path: ${hit._path}`
+                logger.warn(
+                    { requestId, path: hit._path },
+                    'Missing id found in response'
                 );
                 return false;
             } else if (idSet[id]) {
-                console.error(
-                    `Warning, duplicate id ${id} found in response for request id ${requestId} - path: ${hit._path}`
+                logger.warn(
+                    { requestId, id, path: hit._path },
+                    'Duplicate id found in response'
                 );
                 return false;
             } else {
@@ -93,8 +101,9 @@ export const fetchQueryAndSaveResponse = async (
         }
 
         if (hasMore) {
-            console.log(
-                `Fetched ${hitCount} hits of ${total} total - fetching another batch`
+            logger.info(
+                { requestId, hitCount, total, batch },
+                'Fetched batch of hits'
             );
             updateRequestProgress(
                 requestId,
@@ -107,8 +116,9 @@ export const fetchQueryAndSaveResponse = async (
                 stickyCookie || batchResponse.headers.get('set-cookie')
             );
         } else {
-            console.log(
-                `Finished running query with request id ${requestId}. ${hitCount} hits were returned, server promised ${total} total`
+            logger.info(
+                { requestId, hitCount, total },
+                'Finished running query'
             );
             updateRequestProgress(requestId, 100);
             const { branch, query, fields, types } = json;

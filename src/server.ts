@@ -1,6 +1,7 @@
 import express, { ErrorRequestHandler } from 'express';
 import { handleQueryRequest } from './handleQueryRequest';
 import { handleResultRequest, resultApiPath } from './handleResultRequest';
+import { logger, stringifyError } from './logger';
 
 const app = express();
 const appPort = 2999;
@@ -22,7 +23,14 @@ const errorHandler: ErrorRequestHandler = (err, req, res) => {
     const { status, stack } = err;
     const msg = stack?.split('\n')[0];
 
-    console.error(`Express error on path ${path}: ${status} ${msg}`);
+    logger.error(
+        {
+            path,
+            status,
+            error: stringifyError(err),
+        },
+        'Express error'
+    );
 
     return res.status(status).send(msg);
 };
@@ -30,14 +38,14 @@ const errorHandler: ErrorRequestHandler = (err, req, res) => {
 app.use(errorHandler);
 
 const server = app.listen(appPort, () => {
-    console.log(`Server starting on port ${appPort}`);
+    logger.info({ port: appPort }, 'Server starting');
 });
 
 const shutdown = () => {
-    console.log('Server shutting down');
+    logger.info('Server shutting down');
 
     server.close(() => {
-        console.log('Shutdown complete!');
+        logger.info('Shutdown complete');
         process.exit(0);
     });
 };

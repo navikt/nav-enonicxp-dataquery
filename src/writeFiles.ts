@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { Branch, QuerySummary, XpContent } from './types';
 import { getRequestState } from './state';
+import { logger, stringifyError } from './logger';
 
 const localTmp = path.join(path.resolve(), 'tmp');
 const tmpDir = process.env.TMP_DIR || localTmp;
@@ -13,7 +14,7 @@ const getRequestJsonPath = (requestId: string) =>
 
 const objectToJson = (obj: object) => JSON.stringify(obj, null, 4);
 
-console.log(`Using temp dir: ${tmpDir}`);
+logger.info({ tmpDir }, 'Using temp dir');
 
 export const getResultFilename = (requestId: string, branch: Branch) => {
     const dateTime = new Date().toISOString().replaceAll(':', '');
@@ -75,13 +76,19 @@ export const zipQueryResult = async (requestId: string): Promise<string> => {
         archive
             .directory(getRequestJsonPath(requestId), false)
             .on('error', (error) => rej(error))
-            .on('warning', (error) => console.error(error))
+            .on('warning', (error) =>
+                logger.warn(
+                    { requestId, error: stringifyError(error) },
+                    'Archiver warning'
+                )
+            )
             .pipe(output);
 
         output.on('error', (error) => rej(error));
         output.on('close', () => {
-            console.log(
-                `Zipped ${archive.pointer()} bytes to file ${fileName}`
+            logger.info(
+                { requestId, fileName, bytes: archive.pointer() },
+                'Zipped query result'
             );
             res(fileName);
         });
@@ -91,7 +98,7 @@ export const zipQueryResult = async (requestId: string): Promise<string> => {
 };
 
 export const cleanupAfterRequest = (requestId: string) => {
-    console.log(`Cleaning up after ${requestId}`);
+    logger.info({ requestId }, 'Cleaning up after request');
     const requestTmpPath = path.join(tmpDir, requestId);
     if (fs.existsSync(requestTmpPath)) {
         fs.rmSync(requestTmpPath, { recursive: true });

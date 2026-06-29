@@ -3,6 +3,7 @@ import { Branch, Params } from './types';
 import { v4 as uuid } from 'uuid';
 import { fetchQueryAndSaveResponse } from './processQuery';
 import { cleanupAfterRequest } from './writeFiles';
+import { logger, stringifyError } from './logger';
 
 const maxReqs = 3;
 
@@ -35,25 +36,30 @@ export const handleQueryRequest = async (req: Request, res: Response) => {
     const requestId = uuid();
     const startTime = Date.now();
 
-    console.log(
-        `Start processing request ${requestId} - branch: ${branch} - query: ${query} - number of concurrent requests: ${currentReqs}`
+    logger.info(
+        { requestId, branch, query, currentReqs },
+        'Start processing request'
     );
 
     try {
         await fetchQueryAndSaveResponse(req, res, requestId);
     } catch (e) {
-        console.error(`Error on request ${requestId} - ${e}`);
+        logger.error(
+            { requestId, error: stringifyError(e) },
+            'Error on request'
+        );
         cleanupAfterRequest(requestId);
         if (!res.headersSent) {
             return res
                 .status(500)
-                .send(`Server error on request ${requestId} - ${e}`);
+                .send(`Server error on request ${requestId} - ${String(e)}`);
         }
     } finally {
         currentReqs--;
         const timeSpentSec = (Date.now() - startTime) / 1000;
-        console.log(
-            `Finished processing request ${requestId} - time spent: ${timeSpentSec}`
+        logger.info(
+            { requestId, timeSpentSec },
+            'Finished processing request'
         );
     }
 };
