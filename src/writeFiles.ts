@@ -15,13 +15,22 @@ const getRequestJsonPath = (requestId: string) =>
 
 const objectToJson = (obj: object) => JSON.stringify(obj, null, 4);
 
+const sanitizeFilenameSegment = (value: string): string => {
+    const sanitized = value
+        .replace(/[^a-zA-Z0-9._-]/g, '_')
+        .replace(/^[-._]+|[-._]+$/g, '');
+
+    return sanitized || 'unknown';
+};
+
 logger.info({ tmpDir }, 'Using temp dir');
 
 export const getResultFilename = (requestId: string, branch: Branch) => {
     const dateTime = new Date().toISOString().replaceAll(':', '');
+    const safeBranch = sanitizeFilenameSegment(String(branch));
     return path.join(
         tmpDir,
-        `${requestId}_xp-data-query_${branch}_${dateTime}.zip`
+        `${requestId}_xp-data-query_${safeBranch}_${dateTime}.zip`
     );
 };
 
