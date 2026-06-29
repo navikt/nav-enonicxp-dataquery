@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import archiver from 'archiver';
 import { Branch, QuerySummary, XpContent } from './types';
 import { getRequestState } from './state';
 
@@ -65,6 +64,10 @@ export const zipQueryResult = async (requestId: string): Promise<string> => {
         );
     }
 
+    const { default: archiver } = await import('archiver');
+
+    fs.mkdirSync(path.dirname(fileName), { recursive: true });
+
     const output = fs.createWriteStream(fileName);
     const archive = archiver('zip', { zlib: { level: 9 } });
 
@@ -75,6 +78,7 @@ export const zipQueryResult = async (requestId: string): Promise<string> => {
             .on('warning', (error) => console.error(error))
             .pipe(output);
 
+        output.on('error', (error) => rej(error));
         output.on('close', () => {
             console.log(
                 `Zipped ${archive.pointer()} bytes to file ${fileName}`
