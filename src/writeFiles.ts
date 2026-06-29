@@ -18,10 +18,7 @@ logger.info({ tmpDir }, 'Using temp dir');
 
 export const getResultFilename = (requestId: string, branch: Branch) => {
     const dateTime = new Date().toISOString().replaceAll(':', '');
-    return path.join(
-        getRequestBasePath(requestId),
-        `xp-data-query_${branch}_${dateTime}.zip`
-    );
+    return path.join(tmpDir, `${requestId}_xp-data-query_${branch}_${dateTime}.zip`);
 };
 
 const getHitPath = (hit: XpContent) => {
@@ -102,5 +99,10 @@ export const cleanupAfterRequest = (requestId: string) => {
     const requestTmpPath = path.join(tmpDir, requestId);
     if (fs.existsSync(requestTmpPath)) {
         fs.rmSync(requestTmpPath, { recursive: true });
+    }
+
+    const fileName = getRequestState(requestId)?.filename;
+    if (fileName && fs.existsSync(fileName)) {
+        fs.rmSync(fileName, { force: true });
     }
 };
