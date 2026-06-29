@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { ZipArchive } from 'archiver';
 import { Branch, QuerySummary, XpContent } from './types';
 import { getRequestState } from './state';
 import { logger, stringifyError } from './logger';
@@ -18,7 +19,10 @@ logger.info({ tmpDir }, 'Using temp dir');
 
 export const getResultFilename = (requestId: string, branch: Branch) => {
     const dateTime = new Date().toISOString().replaceAll(':', '');
-    return path.join(tmpDir, `${requestId}_xp-data-query_${branch}_${dateTime}.zip`);
+    return path.join(
+        tmpDir,
+        `${requestId}_xp-data-query_${branch}_${dateTime}.zip`
+    );
 };
 
 const getHitPath = (hit: XpContent) => {
@@ -26,8 +30,8 @@ const getHitPath = (hit: XpContent) => {
         return hit._path;
     }
 
-    return `${hit._path}_layer-${hit.layerLocale}`
-}
+    return `${hit._path}_layer-${hit.layerLocale}`;
+};
 
 export const saveHitsToJsonFiles = (hits: XpContent[], requestId: string) => {
     const requestJsonPath = getRequestJsonPath(requestId);
@@ -35,7 +39,7 @@ export const saveHitsToJsonFiles = (hits: XpContent[], requestId: string) => {
     hits.forEach((hit) => {
         const data = objectToJson(hit);
 
-        const hitPath = getHitPath(hit)
+        const hitPath = getHitPath(hit);
 
         const hitPathFull = path.join(requestJsonPath, hitPath);
         const parentPath = path.dirname(hitPathFull);
@@ -62,12 +66,10 @@ export const zipQueryResult = async (requestId: string): Promise<string> => {
         );
     }
 
-    const { default: archiver } = await import('archiver');
-
     fs.mkdirSync(path.dirname(fileName), { recursive: true });
 
     const output = fs.createWriteStream(fileName);
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = new ZipArchive({ zlib: { level: 9 } });
 
     return new Promise((res, rej) => {
         archive
@@ -81,7 +83,7 @@ export const zipQueryResult = async (requestId: string): Promise<string> => {
             )
             .pipe(output);
 
-        output.on('error', (error) => rej(error));
+        output.on('error', (error: unknown) => rej(error));
         output.on('close', () => {
             logger.info(
                 { requestId, fileName, bytes: archive.pointer() },
