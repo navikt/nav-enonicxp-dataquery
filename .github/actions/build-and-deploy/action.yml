@@ -64,7 +64,7 @@ runs:
     - name: Attest and sign image (newer nais/attest-sign)
       uses: nais/attest-sign@main
       with:
-        image_ref: ${{ steps.docker-push.outputs.image }}@${{ steps.docker-push.outputs.digest }}
+        image_ref: ${{ steps.docker-push.outputs.image }}
 
     - name: Deploy to nais
       uses: nais/deploy/actions/deploy@v2

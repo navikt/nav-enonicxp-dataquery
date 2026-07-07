@@ -1,5 +1,13 @@
 {
   "trailingComma": "es5",
   "singleQuote": true,
-  "tabWidth": 4
+  "tabWidth": 4,
+  "overrides": [
+    {
+      "files": ["*.yaml", "*.yml", ".prettierrc"],
+      "options": {
+        "tabWidth": 2
+      }
+    }
+  ]
 }
