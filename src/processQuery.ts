@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import { addRequest, markRequestDone, updateRequestProgress } from './state';
 import { getResultUrl } from './handleResultRequest';
 import { logger } from './logger';
+import { FailureReason, observeXpRequest, QueryError } from './metrics';
 
 const serviceSecret = process.env.SERVICE_SECRET || 'dummyToken';
 
@@ -13,6 +14,23 @@ const xpOrigin = process.env.XP_ORIGIN || localXpOrigin;
 const xpServicePath = '/_/service/no.nav.navno/dataQuery';
 
 const xpUrl = `${xpOrigin}${xpServicePath}`;
+
+// See the dataQuery service in nav-enonicxp for the statuses it responds with
+const xpFailureReason = (status: number): FailureReason => {
+    if (status === 401 || status === 403) {
+        return 'xp_auth';
+    }
+    if (status >= 400 && status < 500) {
+        return 'invalid';
+    }
+    if (status >= 502 && status <= 504) {
+        return 'xp_unavailable';
+    }
+    if (status >= 500) {
+        return 'xp_error';
+    }
+    return 'xp_invalid_response';
+};
 
 // The XP service has a max hit-count per request, in order to prevent timeouts.
 // We have to do batched queries if the total number of hits exceeds the max
@@ -26,18 +44,36 @@ export const fetchQueryAndSaveResponse = async (
         idSet: { [id: string]: boolean } = {},
         stickyCookie?: string | null
     ) => {
-        const batchResponse = await fetch(`${url}&batch=${batch}`, {
-            headers: {
-                secret: serviceSecret,
-                ...(stickyCookie && { cookie: stickyCookie }),
-            },
-        });
+        const batchResponse = await observeXpRequest(() =>
+            fetch(`${url}&batch=${batch}`, {
+                headers: {
+                    secret: serviceSecret,
+                    ...(stickyCookie && { cookie: stickyCookie }),
+                },
+            })
+        );
 
         const isJson = batchResponse.headers
             ?.get('content-type')
             ?.includes?.('application/json');
 
-        if (!isJson) {
+        const json = isJson
+            ? ((await batchResponse
+                  .json()
+                  .catch(() => null)) as XpServiceResponse | null)
+            : null;
+
+        if (!batchResponse.ok) {
+            const { status } = batchResponse;
+            throw new QueryError(
+                xpFailureReason(status),
+                json?.message
+                    ? `Error from XP: ${json.message}`
+                    : `Error from XP - status ${status}`
+            );
+        }
+
+        if (!json) {
             logger.error(
                 {
                     requestId,
@@ -46,17 +82,17 @@ export const fetchQueryAndSaveResponse = async (
                 },
                 'Invalid response from XP - expected JSON'
             );
-            throw new Error(
+            throw new QueryError(
+                'xp_invalid_response',
                 'Invalid response from XP - expected a JSON response'
             );
         }
 
-        const json = (await batchResponse.json()) as XpServiceResponse;
-
         const { hasMore, hits, message, total } = json;
 
         if (!hits) {
-            throw new Error(
+            throw new QueryError(
+                'xp_invalid_response',
                 `${
                     message
                         ? `Error from XP: ${message}`

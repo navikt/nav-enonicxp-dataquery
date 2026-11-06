@@ -1,0 +1,50 @@
+# This is an internal tool with sporadic traffic, so there are no alerts on missing traffic or on error rates.
+# Failures the caller causes (busy, invalid) don't alert.
+# Deployed by deploy-prod.yml. No double curly braces in this file, not even in comments: nais deploy templates every resource with Handlebars.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: nav-enonicxp-dataquery-alerts
+  namespace: navno
+  labels:
+    team: navno
+spec:
+  groups:
+    - name: nav-enonicxp-dataquery
+      rules:
+        # Failures that don't stem from the query itself
+        - alert: NavEnonicxpDataqueryQueriesFailing
+          expr: |
+            sum(increase(nav_enonicxp_dataquery_queries_total{result="failure", reason=~"xp_auth|xp_invalid_response|xp_network|internal"}[30m])) > 0
+          annotations:
+            summary: Queries in nav-enonicxp-dataquery fail
+            consequence: Users get no result for their query, or a 500 response.
+            action: The reason label on nav_enonicxp_dataquery_queries_total should say why. xp_auth means the service secret doesn't match XP's. For the rest, check the logs for "Error on request".
+          labels:
+            namespace: navno
+            severity: warning
+
+        # XP returns 500 when a query throws, which may be a bad NoQL query, and then 503 for 5 minutes after. So a few of these are fine.
+        - alert: NavEnonicxpDataqueryXpErrors
+          expr: |
+            sum(increase(nav_enonicxp_dataquery_queries_total{result="failure", reason=~"xp_error|xp_unavailable"}[1h])) > 2
+          annotations:
+            summary: XP repeatedly failed to run queries from nav-enonicxp-dataquery
+            consequence: Users get no result for their query. XP rejects all queries for 5 minutes after each error.
+            action: Check the logs for "Error on request" to see whether it's the query (a NoQL error) or XP. If it's XP, check the dataQuery service logs in nav-enonicxp.
+          labels:
+            namespace: navno
+            severity: warning
+
+        # A query normally finishes within minutes. All slots taken for an hour suggests a hanging query.
+        - alert: NavEnonicxpDataquerySaturated
+          expr: |
+            max(nav_enonicxp_dataquery_active_queries) >= max(nav_enonicxp_dataquery_max_active_queries)
+          for: 1h
+          annotations:
+            summary: All query slots in nav-enonicxp-dataquery have been taken for over an hour
+            consequence: New queries are rejected with 503 (busy).
+            action: Check the logs for queries that started ("Start processing request") without finishing. Restart the pod if they hang.
+          labels:
+            namespace: navno
+            severity: warning
