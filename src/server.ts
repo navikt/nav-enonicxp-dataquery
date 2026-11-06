@@ -2,6 +2,7 @@ import express, { ErrorRequestHandler } from 'express';
 import { handleQueryRequest } from './handleQueryRequest';
 import { handleResultRequest, resultApiPath } from './handleResultRequest';
 import { logger, stringifyError } from './logger';
+import { metricsHandler } from './metrics';
 
 const app = express();
 const appPort = 2999;
@@ -17,6 +18,8 @@ app.get('/internal/isAlive', (req, res) => {
 app.get('/internal/isReady', (req, res) => {
     return res.status(200).send('I am ready!');
 });
+
+app.get('/internal/metrics', metricsHandler);
 
 const errorHandler: ErrorRequestHandler = (err, req, res) => {
     const { path } = req;
