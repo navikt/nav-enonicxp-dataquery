@@ -2,9 +2,9 @@
     "name": "nav-enonicxp-dataquery",
     "version": "1.0.0",
     "private": true,
-    "packageManager": "pnpm@11.10.0+sha512.0b7f8b98060031904c017e3a41eb187a16d40eeb829b95c4f8cb03681761fc4ab53dd219115b9b447f4dce1a05a214764461e7d3703392a9f32f9511ce8c86c8",
+    "packageManager": "pnpm@12.18.0+sha512.9d7882d5dc82147ecfc4e062aa34834e0ad0296710a1837a1115ae012127d36b7109e321ac1598a1dd0a65597681b1e99917e12ed0d749eae91187943363beb3",
     "engines": {
-        "node": "24"
+        "node": "26"
     },
     "scripts": {
         "build": "rm -fr dist && tsc",
