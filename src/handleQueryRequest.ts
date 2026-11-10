@@ -4,10 +4,20 @@ import { v4 as uuid } from 'uuid';
 import { fetchQueryAndSaveResponse } from './processQuery';
 import { cleanupAfterRequest } from './writeFiles';
 import { logger, stringifyError } from './logger';
+import {
+    activeQueries,
+    countQueryFailure,
+    countQuerySuccess,
+    failureReasonFor,
+    maxActiveQueries,
+    queryDuration,
+} from './metrics';
 
 const maxReqs = 3;
 
 let currentReqs = 0;
+
+maxActiveQueries.set(maxReqs);
 
 const validBranches: {[key in Branch]: true} = {
     'archived': true,
@@ -16,15 +26,10 @@ const validBranches: {[key in Branch]: true} = {
 }
 
 export const handleQueryRequest = async (req: Request, res: Response) => {
-    if (currentReqs >= maxReqs) {
-        return res
-            .status(503)
-            .send('Service is currently busy - try again in a moment');
-    }
-
     const { branch, query } = req.query as Params;
 
     if (!validBranches[branch]) {
+        countQueryFailure(branch, 'invalid');
         return res
             .status(400)
             .send(
@@ -32,7 +37,15 @@ export const handleQueryRequest = async (req: Request, res: Response) => {
             );
     }
 
+    if (currentReqs >= maxReqs) {
+        countQueryFailure(branch, 'busy');
+        return res
+            .status(503)
+            .send('Service is currently busy - try again in a moment');
+    }
+
     currentReqs++;
+    activeQueries.inc();
     const requestId = uuid();
     const startTime = Date.now();
 
@@ -43,9 +56,13 @@ export const handleQueryRequest = async (req: Request, res: Response) => {
 
     try {
         await fetchQueryAndSaveResponse(req, res, requestId);
+        countQuerySuccess(branch);
+        queryDuration.observe({ branch }, (Date.now() - startTime) / 1000);
     } catch (e) {
+        const reason = failureReasonFor(e);
+        countQueryFailure(branch, reason);
         logger.error(
-            { requestId, error: stringifyError(e) },
+            { requestId, reason, error: stringifyError(e) },
             'Error on request'
         );
         cleanupAfterRequest(requestId);
@@ -56,6 +73,7 @@ export const handleQueryRequest = async (req: Request, res: Response) => {
         }
     } finally {
         currentReqs--;
+        activeQueries.dec();
         const timeSpentSec = (Date.now() - startTime) / 1000;
         logger.info(
             { requestId, timeSpentSec },

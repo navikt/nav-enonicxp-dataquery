@@ -10,6 +10,14 @@ jobs:
     permissions: { contents: read, id-token: write }
     secrets: inherit
 
+  # Separate from the app deploy, so base-image-refresh.yml doesn't redeploy the alerts every week
+  alerts:
+    uses: navikt/navno-ci/.github/workflows/nais-deploy.yml@v1
+    permissions: { contents: read, id-token: write }
+    with:
+      cluster: prod-gcp
+      resource: .nais/alerts.yml
+
   release:
     needs: deploy
     uses: navikt/navno-ci/.github/workflows/release.yml@v1

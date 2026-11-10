@@ -12,6 +12,7 @@
         "start": "node dist/server.js"
     },
     "dependencies": {
+        "@prometheus-io/client": "0.16.1",
         "archiver": "8.0.0",
         "express": "5.3.0",
         "node-cache": "5.1.2",

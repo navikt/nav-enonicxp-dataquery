@@ -66,6 +66,20 @@ Oversikt over alle tilgjengelige resultater finnes her:\
 [https://nav-enonicxp-dataquery.intern.nav.no/result](https://nav-enonicxp-dataquery.intern.nav.no/result) (prod)\
 [https://nav-enonicxp-dataquery.intern.dev.nav.no/result](https://nav-enonicxp-dataquery.intern.dev.nav.no/result) (dev)
 
+## Metrikker og varsler
+
+Prometheus-metrikker serveres på `/internal/metrics` (prefiks `nav_enonicxp_dataquery_`):
+
+| Metrikk                                 | Beskrivelse                                                                  |
+| --------------------------------------- | ---------------------------------------------------------------------------- |
+| `queries_total{branch, result, reason}` | Ferdige queries. `reason` sier hvorfor en query feilet (se `src/metrics.ts`) |
+| `query_duration_seconds{branch}`        | Tid fra query mottas til zip-fila er klar (kun vellykkede)                   |
+| `active_queries` / `max_active_queries` | Queries som kjører nå / maks samtidige før vi svarer 503                     |
+| `xp_requests_total{status}`             | Kall mot dataQuery-servicen i XP (ett per batch), etter statusklasse         |
+| `xp_request_duration_seconds`           | Responstid fra XP per batch                                                  |
+
+Varsler for prod ligger i [.nais/alerts.yml](.nais/alerts.yml) og deployes ved push til main.
+
 ## Prodsetting
 
 Lag en PR til main, og merge inn etter godkjenning (En automatisk release vil oppstå ved deploy til main.)
