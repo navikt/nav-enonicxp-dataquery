@@ -25,9 +25,10 @@ spec:
             severity: warning
 
         # XP returns 500 when a query throws, which may be a bad NoQL query, and then 503 for 5 minutes after. So a few of these are fine.
+        # increase() extrapolates, so 2 errors can read as 2.0x. The threshold 2.5 makes this fire from 3 errors.
         - alert: NavEnonicxpDataqueryXpErrors
           expr: |
-            sum(increase(nav_enonicxp_dataquery_queries_total{result="failure", reason=~"xp_error|xp_unavailable"}[1h])) > 2
+            sum(increase(nav_enonicxp_dataquery_queries_total{result="failure", reason=~"xp_error|xp_unavailable"}[1h])) > 2.5
           annotations:
             summary: XP repeatedly failed to run queries from nav-enonicxp-dataquery
             consequence: Users get no result for their query. XP rejects all queries for 5 minutes after each error.
